@@ -1,0 +1,27 @@
+.container {
+    display: -webkit-flex;
+    display: flex;
+    flex-flow: row wrap;
+    font-weight: bold;
+    text-align: center;
+    text-align: center;
+    background-color:lightsteelblue;
+    font-family: sans-serif;
+}
+
+.container > * {
+    padding: 10px;
+    flex: 1 100%;
+    list-style: none;
+}
+
+.header {
+    text-align: center;
+    background-color: lightslategray;
+    font-size: larger;
+}
+
+.clock {
+    font-size: xx-large;
+    font-family: monospace;
+}

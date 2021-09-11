@@ -2,20 +2,28 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1"> 
         <title>
             Flask App
         </title>
         <script src="{{ url_for('static', filename='scripts/clock.js') }}"></script>
+        <link href="{{ url_for('static', filename='styles/home.css') }}" rel="stylesheet">
     </head>
     <body>
-        <h1>
-            Hey there, {{ username }}
-        </h1>
-        <ul>
-            {% for item in list %}
-            <li>{{ item }}</li>
-            {% endfor %}
-        </ul>
-        <p id="clock"></p>
+        <div class="container">
+            <div class="header">
+                <h1>
+                    Hey there, {{ username }}
+                </h1>
+            </div>
+            <ul>
+                {% for item in list %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            <div class="clock">
+                <p id="clock"></p>
+            </div>
+        </div>
     </body>
 </html>
