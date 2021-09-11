@@ -16,13 +16,18 @@
                     Hey there, {{ username }}
                 </h1>
             </div>
-            <ul>
-                {% for item in list %}
-                <li>{{ item }}</li>
-                {% endfor %}
-            </ul>
-            <div class="clock">
-                <p id="clock"></p>
+            <div class="section-element">
+                <ul>
+                    {% for item in list %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+                    <aside class="clock">
+                        <p id="clock"></p>
+                    </aside>
+                    <aside class="bio">
+                        This is also section element
+                    </aside>
             </div>
         </div>
     </body>
