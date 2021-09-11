@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Flask App
+        </title>
+        <script src="{{ url_for('static', filename='scripts/clock.js') }}"></script>
+    </head>
+    <body>
+        <h1>
+            Hey there, {{ username }}
+        </h1>
+        <ul>
+            {% for item in list %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        <p id="clock"></p>
+    </body>
+</html>
