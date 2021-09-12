@@ -1,6 +1,11 @@
-.container {
+* {
+    box-sizing: border-box;
+}
+
+.flex-container {
     display: -webkit-flex;
     display: flex;
+    -webkit-flex-flow: row wrap;
     flex-flow: row wrap;
     font-weight: bold;
     text-align: center;
@@ -8,11 +13,11 @@
     font-family: sans-serif;
 }
 
-.container > * {
+.flex-container > * {
     padding: 10px;
     flex: 1 100%;
-    list-style-position: inside;
     list-style-type: none;
+    list-style-position: inside;
 }
 
 .header {
@@ -26,17 +31,19 @@
     font-family: monospace;
 }
 
+.bio {
+    padding-top: 30px;
+}
+
 .section-element {
     font: inherit;
-    text-align: left;
+    text-align: center;
     background-color: ivory;
     padding: 20px;
 }
 
 @media all and (min-width: 768px) {
-    .aside { flex: 1 auto; }
-    .main    { flex: 3 0px; }
-    .clock { order: 1; }
-    .bio { order: 2; }
-    .footer  { order: 4; }
+    .item { flex: 1 auto; }
+    .clock { flex: 50%;}
+    .bio { flex: 50%; }
   }
