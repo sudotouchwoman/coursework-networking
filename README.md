@@ -6,3 +6,9 @@
 + Add `static` and `templates` folders
 + Add simple script displaying current time and a bit of css
 + Add icon to the app
+
+## **Stage 1**
+
++ Install MySQL server and setup database from last term
++ Implement simple `Connection` class using `pymysql`
++ Ensure connection succeded, put debug info to `.log` file

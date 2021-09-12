@@ -9,3 +9,9 @@
 + Create `develop` branch
 + Add `icon.png` with page favicon
 + Add `README` and `CHANGELOG`
+## `2021-09-13`
++ Setup MySQL server, import dump from former laptop
++ Setup `VSCode` extension for MySQL
++ Add config with db settings
++ Test db connection using `pymysql`
++ Add logging for testing connection
