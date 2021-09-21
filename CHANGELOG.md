@@ -15,3 +15,7 @@
 + Add config with db settings
 + Test db connection using `pymysql`
 + Add logging for testing connection
+## `2021-09-21`
++ Encapsulate used routes into `home` blueprint
++ Use `url_prefix` and separate `static` & `template` folders
++ Ensure everything works out fine

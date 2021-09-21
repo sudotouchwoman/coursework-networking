@@ -12,3 +12,7 @@
 + Install MySQL server and setup database from last term
 + Implement simple `Connection` class using `pymysql`
 + Ensure connection succeded, put debug info to `.log` file
+
+## **Stage 2**
+
++ Make first blueprint, separate resources and routes
