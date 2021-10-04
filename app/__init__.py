@@ -1,6 +1,6 @@
 def run_app():
     
-    from .apps import create_app, config
+    from .blueprints import create_app, config
     app = create_app()
     settings = config.DevConfig()
     

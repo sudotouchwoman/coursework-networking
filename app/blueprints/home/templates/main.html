@@ -12,7 +12,11 @@
         <div class="flex-container">
             <header class="header">
                 <h1>
+                    {% if username %}
                     Welcome back, {{ username }}
+                    {% else %}
+                    Hi there, stranger
+                    {% endif %}
                 </h1>
             </header>
             <div class="section-element">
@@ -28,6 +32,11 @@
             <aside class="item bio">
                 This is some kind of a description <br> Hope there will be columns eventually
             </aside>
+            <div class="section-element">
+                {% block db %}
+                {% endblock %}
+            </div>
         </div>
+
     </body>
 </html>

@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify, render_template
 import os
 import datetime
+from ...database import *
+
 
 home_bp = Blueprint(
     'home_bp',
@@ -25,7 +27,7 @@ def get_home_bp():
 def get_form():
     return render_template('form.html')
 
-@home_bp.route('/dyn', methods=['GET'])
+@home_bp.route('/main', methods=['GET'])
 def get_dynamic_page():
     PARAMS = {
         'username':'sakeof',
@@ -35,4 +37,19 @@ def get_dynamic_page():
             'sus'
         ]
     }
-    return render_template('dynamic.html', **PARAMS)
+    return render_template('main.html', **PARAMS)
+
+@home_bp.route('/db-connect', methods= ['GET'])
+def get_db_info():
+    db_settings = query.load_db_config('db-config.json')
+    results = query.SelectQuery(db_settings).execute_query(['id_patient', 'firstname', 'secondname', 'attending_doctor'], 'doctor')
+    PARAMS = {
+        'username':'sakeof',
+        'list':[
+            'boo',
+            'ba',
+            'sus'
+        ]
+    }
+    if results is None: return render_template('db.html', message=False, success=False, empty=True, **PARAMS)
+    return render_template('db.html', message=True, success=True, table_content=results, **PARAMS)
