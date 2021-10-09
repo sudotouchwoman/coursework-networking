@@ -3,10 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta content="width=device-width, initial-scale=1"> 
-        <title>Flask App</title>
+        <title>User page</title>
         <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/icon.png') }}">
-        <link href="{{ url_for('home_bp.static', filename='css/home.css') }}" rel="stylesheet">
-        <script src="{{ url_for('home_bp.static', filename='js/clock.js') }}"></script>
+        <link href="{{ url_for('user_bp.static', filename='css/home.css') }}" rel="stylesheet">
+        <!-- <script src="{{ url_for('user_bp.static', filename='js/clock.js') }}"></script> -->
     </head>
     <body>
         <div class="flex-container">
@@ -20,11 +20,10 @@
                 </h1>
             </header>
             <div class="section-element">
-                <ul>
-                    {% for item in list %}
-                    <li>{{ item }}</li>
-                    {% endfor %}
-                </ul>
+                <form action="{{ url_for('user_bp.post_auth') }}" method="post">
+                    <input type="text" name="patient_limit" placeholder="Write patient limit">
+                    <input type="submit" name="submit_button" placeholder="Submeet">
+                </form>
             </div>
             <aside class="item clock">
                 <p id="clock"></p>

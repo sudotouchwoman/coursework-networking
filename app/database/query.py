@@ -85,7 +85,7 @@ class SelectQuery(Query):
         '''
         log.debug(msg=f'Executes query')
         SQL_QUERY = f'SELECT {", ".join(rows)} FROM {table}'
-        if isinstance(limit, int) and limit > 0: SQL_QUERY += f'LIMIT {limit}'
+        if isinstance(limit, int) or int(limit) > 0: SQL_QUERY += f' LIMIT {limit}'
         
         log.debug(msg=f'Query is: {SQL_QUERY}')
         try:

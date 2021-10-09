@@ -1,0 +1,17 @@
+{% extends "home.html" %}
+{% block db %}
+    {% if success %}
+    <p style="text-align: center;">Request succeded!</p>
+    <p style="text-align: center;">Database outputs for your request:</p>
+    {% endif %}
+    {% if empty %}
+    <p style="text-align: center;">Nothing was found for your request!</p>
+    {% endif %}
+    {% if message %}
+    <ol>
+    {% for item in table_content %}
+    <li style="text-align: center;"> {{item}} </li>
+    {% endfor %}
+    </ol>
+    {% endif %}
+{% endblock %}

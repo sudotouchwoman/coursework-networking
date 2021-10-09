@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template
 import os
 import datetime
-from ...database import *
+from ...database import query
 
 
 home_bp = Blueprint(
@@ -42,7 +42,7 @@ def get_dynamic_page():
 @home_bp.route('/db-connect', methods= ['GET'])
 def get_db_info():
     db_settings = query.load_db_config('db-config.json')
-    results = query.SelectQuery(db_settings).execute_query(['id_patient', 'firstname', 'secondname', 'attending_doctor'], 'doctor')
+    results = query.SelectQuery(db_settings).execute_query(['id_patient', 'firstname', 'secondname', 'attending_doctor'], 'patient')
     PARAMS = {
         'username':'sakeof',
         'list':[
