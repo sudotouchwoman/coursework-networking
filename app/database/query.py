@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import os
 import datetime
 from pymysql.err import ProgrammingError, OperationalError
@@ -26,7 +27,8 @@ LOGFILE = os.getenv('DB_LOGFILE_NAME', 'log-db-connection.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
+# handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -85,7 +87,7 @@ class SelectQuery(Query):
         '''
         log.debug(msg=f'Executes query')
         SQL_QUERY = f'SELECT {", ".join(rows)} FROM {table}'
-        if isinstance(limit, int) or int(limit) > 0: SQL_QUERY += f' LIMIT {limit}'
+        if isinstance(limit, str) or isinstance(limit, int) and int(limit) > 0: SQL_QUERY += f' LIMIT {limit}'
         
         log.debug(msg=f'Query is: {SQL_QUERY}')
         try:

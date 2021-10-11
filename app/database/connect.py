@@ -1,6 +1,7 @@
 from pymysql import connect
 from pymysql.err import InterfaceError, OperationalError, Error
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import datetime
 import os
 
@@ -14,7 +15,7 @@ LOGFILE = os.getenv('DB_LOGFILE_NAME', 'log-db-connection.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)

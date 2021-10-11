@@ -1,13 +1,7 @@
-from flask import Flask
-
 def create_app():
     '''Create new app instance'''
-    app = Flask(
-        __name__,
-        instance_relative_config=False,
-        static_folder='static/',
-        template_folder='templates/')
     
+    from .routes import app
     with app.app_context():
         from .home.routes import home_bp
         from .user.routes import user_bp

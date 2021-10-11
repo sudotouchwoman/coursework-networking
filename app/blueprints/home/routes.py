@@ -1,7 +1,16 @@
+'''
+Routes of the `home` blueprint
+
+This was the first blueprint I implemented to test how bp factory works
+
+Each bp has its own `templates/' and `static/` folders
+
+Each bp is registered into base app with url prefix via `register_blueprint`
+'''
 from flask import Blueprint, request, jsonify, render_template
 import os
 import datetime
-from ...database import query
+from app.database import query
 
 
 home_bp = Blueprint(
