@@ -1,0 +1,17 @@
+{% extends "app_layout.html" %}
+{%block styles%}
+    <link href="{{ url_for('static', filename='css/menu.css') }}" rel="stylesheet">
+{%endblock%}
+{%block icon%}
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/icon.png') }}">
+{%endblock%}
+{% block title %}
+Page not found
+{% endblock %}
+{% block body %}
+<div class="flex-container">
+    <h1>Page you are looking for does not exist</h1>
+    <p>What you are looking for is not there anymore</p>
+    <a href="{{ url_for('get_courses_menu') }}">Warp to the main menu</a>
+</div>
+{% endblock %}

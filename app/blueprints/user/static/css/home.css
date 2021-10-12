@@ -26,13 +26,18 @@
     font-size: larger;
 }
 
-.clock {
-    font-size: xx-large;
-    font-family: monospace;
+#search-courses input[type=text]:focus{
+    border-width: 7px solid #555;
 }
 
-.bio {
-    padding-top: 30px;
+#search-courses input[type=text]{
+    width: 130px;
+    transition: width 0.5s ease-in-out;
+}
+
+#search-courses form{
+    vertical-align: middle;
+    text-align: center;
 }
 
 .section-element {

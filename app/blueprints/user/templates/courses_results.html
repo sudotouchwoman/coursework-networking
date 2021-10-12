@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1"> 
+        <title>Language courses</title>
+        <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/icon.png') }}">
+        <link href="{{ url_for('user_bp.static', filename='css/home.css') }}" rel="stylesheet">
+        <link href="{{ url_for('user_bp.static', filename='css/table.css') }}" rel="stylesheet">
+    </head>
+    <body>
+        <div class="fetched">
+            {% block results %}
+            {% endblock %}
+        </div>
+        <div class="fetched">
+            {% block options %}
+            {% endblock %}
+        </div>
+        <div>
+            <p>Click <a href="{{ url_for('get_courses_menu') }}">here</a> to go to main menu</p>
+        </div>
+    </body>
+</html>

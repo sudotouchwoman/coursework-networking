@@ -1,0 +1,12 @@
+{% extends 'app_home.html' %}
+{% block options %}
+<aside class="item links" id="request-links">
+    <ul>
+        <li>
+            <a href="{{ url_for('user_bp.get_request_services') }}">Find courses for specific language</a>
+        </li>
+        <li>
+            <a href="{{ url_for('user_bp.get_request_orders') }}">Find orders and filter by price</a></li>
+    </ul>
+</aside>
+{% endblock %}

@@ -23,12 +23,12 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'log-db-connection.log')
+LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 # handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=0)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -110,7 +110,8 @@ if __name__ == '__main__':
     
     log.info(msg=f'Testing query performance')
 
-    query = SelectQuery(load_db_config(path_to_config='../../db-config.json'))          # load config from relative location ans pass to query
+    query = SelectQuery(
+        load_db_config(path_to_config='../../db-configs/db-hospital.json'))             # load config from relative location ans pass to query
     rows = query.execute_query(['id_doctor', 'first_name', 'second_name'], 'doctor')    # success
     rows = query.execute_query(['id_patient', 'firstname', 'secondname'], 'patient')    # success
     rows = query.execute_query([], 'patient')   # fails and returns None

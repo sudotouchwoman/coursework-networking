@@ -5,7 +5,7 @@ Base app is created here and later blueprints are added to it via blueprint fact
 
 This module contains routes for main menu and something else, maybe
 '''
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(
     __name__,
@@ -13,6 +13,14 @@ app = Flask(
     static_folder='static/',
     template_folder='templates/')
 
+@app.errorhandler(404)
+def page_not_found_redirect(e):
+    return render_template('404.j2')
+
 @app.route('/menu', methods= ['GET'])
 def get_main_page() -> str:
     return 'This is main page. Check out /home/.. and /user/.. blueprints'
+
+@app.route('/courses', methods=['GET'])
+def get_courses_menu():
+    return render_template('courses_routes.j2')

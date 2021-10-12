@@ -1,0 +1,27 @@
+* {
+    font-family: sans-serif;
+}
+
+#fetched-message h1{
+    text-align: center;
+    font-size: larger;
+}
+
+.fetched-rows tr:nth-child(odd) {
+    background-color: lightsteelblue;
+    text-align: center;
+}
+
+.fetched-rows table{
+    border-bottom: 1px dashed #ddd;
+}
+
+.fetched table{
+    border: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.fetched {
+    text-align: center;
+}

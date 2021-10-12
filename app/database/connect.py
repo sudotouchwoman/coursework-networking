@@ -11,11 +11,11 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'log-db-connection.log')
+LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=0)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -103,4 +103,5 @@ def test_connection(filename: str) -> bool:
     return conn.CONNECTED
 
 if __name__ == '__main__':
-    test_connection('../../db-config.json')
+    test_connection('../../db-configs/db-hospital.json')
+    test_connection('../../db-configs/db-courses.json')

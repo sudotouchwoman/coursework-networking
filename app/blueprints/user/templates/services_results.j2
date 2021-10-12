@@ -1,0 +1,29 @@
+{% extends "courses_results.html" %}
+{% block results %}
+<h1 id="fetched-message"><b>The results for {{ language }}:</b></h1>
+{% endblock %}
+{% block options %}
+{% if empty %}
+<div>
+    <p style="text-align: center;">Nothing found for your request</p>
+</div>
+{% endif %}
+{% if has_options %}
+<table class="fetched-rows">
+    <tr>
+        <td>Service code</td>
+        <td>Title</td>
+        <td>Tutor attendance</td>
+        <td>Price (&#8381;)</td>
+    </tr>
+    {% for row in options %}
+    <tr>
+        <td> {{ row[0] }} </td>
+        <td> {{ row[1] }} </td>
+        <td> {{ row[2] }} </td>
+        <td> {{ row[4] }} </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
