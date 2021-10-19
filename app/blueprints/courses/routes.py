@@ -28,6 +28,10 @@ courses_bp = Blueprint(
     template_folder='templates/',
     static_folder='static/')
 
+@courses_bp.route('/menu', methods=['GET'])
+def get_courses_menu():
+    return render_template('courses_routes.j2')
+
 @courses_bp.route('/request/services', methods=['POST'])
 def post_request_services():
     selected_lang = request.values.get('language_selection')

@@ -20,7 +20,3 @@ def page_not_found_redirect(e):
 @app.route('/menu', methods= ['GET'])
 def get_main_page() -> str:
     return 'This is main page. Check out /home/.. and /user/.. blueprints'
-
-@app.route('/courses', methods=['GET'])
-def get_courses_menu():
-    return render_template('courses_routes.j2')
