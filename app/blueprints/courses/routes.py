@@ -22,13 +22,13 @@ log.addHandler(handler)
 
 log.info(msg=f'LOG STARTED: [{datetime.datetime.now(tz=None)}]')
 
-user_bp = Blueprint(
-    'user_bp',
+courses_bp = Blueprint(
+    'courses_bp',
     __name__,
     template_folder='templates/',
     static_folder='static/')
 
-@user_bp.route('/request/services', methods=['POST'])
+@courses_bp.route('/request/services', methods=['POST'])
 def post_request_services():
     selected_lang = request.values.get('language_selection')
     selected_lang = 'All languages' if (selected_lang == '') else selected_lang
@@ -45,11 +45,11 @@ def post_request_services():
     log.debug(msg=f'Did not render bc results are empty!')
     return render_template('services_results.j2', empty=True, language=selected_lang)
 
-@user_bp.route('/request/services', methods=['GET'])
+@courses_bp.route('/request/services', methods=['GET'])
 def get_request_services():
     return render_template('services_selection.html')
 
-@user_bp.route('/request/orders', methods=['POST'])
+@courses_bp.route('/request/orders', methods=['POST'])
 def post_request_orders():
     selected_threshold = request.values.get('threshold')
     results = courses.GLOBAL_COURSE_CONTROLLER.get_orders_for_threshold(selected_threshold)
@@ -66,6 +66,6 @@ def post_request_orders():
     return render_template('services_results.j2', empty=True, threshold=selected_threshold)
 
 
-@user_bp.route('/request/orders', methods=['GET'])
+@courses_bp.route('/request/orders', methods=['GET'])
 def get_request_orders():
     return render_template('order_selection.html')

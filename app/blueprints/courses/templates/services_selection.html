@@ -4,22 +4,22 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1">
-    <title>Search orders</title>
+    <title>Search services</title>
     <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/icon.png') }}">
-    <link href="{{ url_for('user_bp.static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('courses_bp.static', filename='css/home.css') }}" rel="stylesheet">
 </head>
 
 <body>
     <div class="section-element">
         <div class="flex-container">
             <aside class="item" id="search-courses">
-                <form action="{{ url_for('user_bp.post_request_orders') }}" method="post">
-                    <input type="number" name="threshold" placeholder="Filter by price" min="0" max="10000">
+                <form action="{{ url_for('courses_bp.post_request_services') }}" method="post">
+                    <input type="text" name="language_selection" placeholder="Write language here">
                     <input type="submit" placeholder="Search">
                 </form>
             </aside>
             <aside class="item bio">
-                Filter orders by total price of selected services
+                Write language you wish to master!
             </aside>
         </div>
     </div>
