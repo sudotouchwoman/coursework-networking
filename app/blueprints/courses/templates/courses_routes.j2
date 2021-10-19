@@ -1,0 +1,30 @@
+{% extends 'app_layout.html' %}
+
+{%block title%}
+Language courses
+{%endblock%}
+
+{%block styles%}
+<link href="{{ url_for('static', filename='css/menu.css') }}" rel="stylesheet">
+{%endblock%}
+
+{%block icon%}
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/icon.png') }}">
+{%endblock%}
+
+{%block body%}
+<div class="flex-container">
+    <aside class="item links" id="request-links">
+        <ul>
+            <li>
+                <a href="{{ url_for('courses_bp.get_request_services') }}">Find courses for specific language</a>
+            </li>
+            <li>
+                <a href="{{ url_for('courses_bp.get_request_orders') }}">Find orders and filter by price</a></li>
+        </ul>
+    </aside>
+    <aside class="item bio">
+        Choose request to perform: get courses for specific language or filter services by price.
+    </aside>
+</div>
+{%endblock%}
