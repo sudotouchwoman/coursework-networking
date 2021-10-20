@@ -4,14 +4,14 @@ from logging.handlers import TimedRotatingFileHandler
 import datetime
 import os
 
-from app.process import courses
+from app.content.courses import courses
 log = logging.getLogger(__name__)
 # enable logging routines
 # write log to a file with specified filename (provided via environmental variable)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-courses-app-state.log')
+LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-courses-app-state.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
@@ -56,6 +56,8 @@ def get_request_services():
 @courses_bp.route('/request/orders', methods=['POST'])
 def post_request_orders():
     selected_threshold = request.values.get('threshold')
+    if selected_threshold == '': selected_threshold = '0'
+    log.debug(msg=f'Selected threshold of {selected_threshold}')
     results = courses.GLOBAL_COURSE_CONTROLLER.get_orders_for_threshold(selected_threshold)
     log.debug(msg=f'Controller response: {results}')
 

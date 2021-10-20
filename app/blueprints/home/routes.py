@@ -50,7 +50,7 @@ def get_dynamic_page():
 
 @home_bp.route('/db-connect', methods= ['GET'])
 def get_db_info():
-    db_settings = query.load_db_config('db-config.json')
+    db_settings = query.load_db_config('db-configs/db-hospital.json')
     results = query.SelectQuery(db_settings).execute_query(['id_patient', 'firstname', 'secondname', 'attending_doctor'], 'patient')
     PARAMS = {
         'username':'sakeof',

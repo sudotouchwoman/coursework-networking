@@ -1,0 +1,19 @@
+{% extends "app_layout.html" %}
+{% block title %}
+Server error
+{% endblock title %}
+{% block styles %}
+        <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
+        <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
+{% endblock styles %}
+{% block icon %}
+        <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
+{% endblock icon %}
+{% block body %}
+<div>
+    <p>Looks like there was an error on server! Refresh page or come back later...</p>
+    <div class="footer">
+        <p>Return to <a href="{{ url_for('get_hospital_menu') }}">main page</a></p>
+    </div>
+</div>
+{% endblock body %}

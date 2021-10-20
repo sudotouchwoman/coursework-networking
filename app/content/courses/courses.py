@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-courses-app-state.log')
+LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-courses-app-state.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
@@ -76,14 +76,16 @@ class CourseController:
             return SelectQuery(self.SETTINGS)\
                 .execute_raw_query(f'SELECT price FROM orders ORDER BY total_price DESC LIMIT 1')
 
-        if not threshold.isdigit(): return (False,)
+        if not threshold.isdigit():
+            log.error(msg=f'Provided value is not a valid digit, abort')
+            return (False,)
 
-        def get_threshed_orders(thresh:int):
+        def get_threshed_orders():
             return SelectQuery(self.SETTINGS)\
                 .execute_raw_query(f'SELECT * FROM orders WHERE total_price > {threshold} ORDER BY total_price DESC')
         
         log.debug(msg=f'Performs query')
-        filtered = get_threshed_orders(thresh=threshold)
+        filtered = get_threshed_orders()
         log.debug(msg=f'Finished query')
         
         log.debug(msg=f'Collected this: {filtered}')

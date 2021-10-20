@@ -1,0 +1,33 @@
+{% extends "app_layout.html" %}
+{% block title %}
+Hospital
+{% endblock title %}
+{% block styles %}
+        <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
+        <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
+{% endblock styles %}
+{% block icon %}
+        <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
+{% endblock icon %}
+{% block body %}
+<div class="flex-container">
+    {% if has_options %}
+    <form action="{{ url_for('hospital_bp.post_request_department_stats') }}" method="post">
+        <label for="department">Select department to create a report:</label>
+        <select class="select-select" name="department_selection">
+    {% for department in departments %}
+            <option value="{{ department }}">{{department}}</option>
+    {% endfor %}
+        </select>
+        <input type="submit" placeholder="Create report">
+    </form>
+    {% else %}
+        <div class="no-options">
+            <p>Looks like there was an error on server! Refresh page or come back later...</p>
+        </div>
+    {% endif %}
+    <div class="footer">
+        <p>Return to <a href="{{ url_for('get_hospital_menu') }}">main page</a></p>
+    </div>
+</div>
+{% endblock body %}

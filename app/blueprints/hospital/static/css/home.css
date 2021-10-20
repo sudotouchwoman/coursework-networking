@@ -5,6 +5,8 @@
 .flex-container {
     display: -webkit-flex;
     display: flex;
+    align-items: center;
+    justify-content: center;
     -webkit-flex-flow: row wrap;
     flex-flow: row wrap;
     font-weight: bold;
@@ -26,18 +28,29 @@
     font-size: larger;
 }
 
-#search-courses input[type=text]:focus{
+#search-hospital input[type=text]:focus{
     border-width: 7px solid #555;
 }
 
-#search-courses input[type=text]{
+#search-hospital input[type=text]{
     width: 130px;
     transition: width 0.5s ease-in-out;
 }
 
-#search-courses form{
+#search-hospital form{
     vertical-align: middle;
+    background-color: #ddd;
+    font-family: monospace;
     text-align: center;
+}
+
+#request-links ul{
+    list-style-type: none;
+}
+
+
+.select-select select {
+    display: none;
 }
 
 .section-element {
