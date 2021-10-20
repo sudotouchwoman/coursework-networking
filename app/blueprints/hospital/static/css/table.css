@@ -8,7 +8,12 @@
 }
 
 .fetched-rows tr:nth-child(odd) {
-    background-color: lightsteelblue;
+    background-color: #D8A2AF;
+    text-align: center;
+}
+
+.fetched-rows tr:nth-child(even) {
+    background-color: #D3DEDB;
     text-align: center;
 }
 

@@ -3,11 +3,6 @@
 <h1 id="fetched-message"><b>Information about {{ department }} department</b></h1>
 {% endblock %}
 {% block options %}
-{% if empty %}
-<div>
-    <p style="text-align: center;">Nothing found for your request, try lowering the threshold value</p>
-</div>
-{% endif %}
 {% if has_options %}
 <table class="fetched-rows">
     <tr>

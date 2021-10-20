@@ -94,5 +94,53 @@ class HospitalController:
         log.debug(msg=f'Created report: {selected}')
         return (True, selected)
 
+    def get_doctors(self):
+        # also condidate for caching
+        log.debug(msg=f'Fetches list of doctors')
+        selected = SelectQuery(self.SETTINGS)\
+            .execute_raw_query('SELECT doctor.second_name from doctor;')
+
+        if selected is None:
+            log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
+            return (False,)
+
+        selected = (row[0] for row in selected)
+        log.debug(msg=f'Fetched list of doctors')
+        return (True, selected)
+
+
+    def get_assigned_to_doctor(self, doctor:str):
+
+        log.debug(msg=f'Collects assignees for {doctor}')
+
+        selected = SelectQuery(self.SETTINGS)\
+            .execute_raw_query(
+        f'''select
+            patient.firstname,
+            patient.secondname,
+            patient.initial_diagnosis, 
+            patient.outcome_diagnosis 
+            from patient join doctor on attending_doctor = doctor.id_doctor 
+            and doctor.second_name like '{doctor}';'''
+                            )
+
+        if selected is None:
+            log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with creditentials {doctor}')
+            return (False,)
+
+        handle_null = lambda s: 'No information avaliable' if s == '' or s is None else s
+        
+        for i, row in enumerate(selected):
+            row = list(row)
+            row[1] = ' '.join(row[:2])
+            row[2] = handle_null(row[2])
+            row[3] = handle_null(row[3])
+            row[0] = i + 1
+            selected[i] = tuple(row)
+        
+        log.debug(msg=f'Successfully fetched report for given doctor')
+        return (True, selected)
+
+
 
 GLOBAL_HOSPITAL_CONTROLLER = HospitalController(load_db_config(DB_CONFIG_FILE))

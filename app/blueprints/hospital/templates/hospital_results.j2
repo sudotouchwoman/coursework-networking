@@ -11,6 +11,7 @@ Request results
         <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
 {% endblock icon %}
 {% block body %}
+    <div class="section-element">
         <div class="fetched">
             {% block results %}
             {% endblock %}
@@ -22,4 +23,5 @@ Request results
         <div>
             <p>Click <a href="{{ url_for('get_hospital_menu') }}">here</a> to go to main menu</p>
         </div>
+    </div>
 {% endblock body %}

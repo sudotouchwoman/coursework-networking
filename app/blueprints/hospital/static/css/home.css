@@ -11,7 +11,7 @@
     flex-flow: row wrap;
     font-weight: bold;
     text-align: center;
-    background-color:lightsteelblue;
+    background-color: #B7C4C4;
     font-family: sans-serif;
 }
 
@@ -24,7 +24,7 @@
 
 .header {
     text-align: center;
-    background-color: lightslategray;
+    background-color: #9F9FA5;
     font-size: larger;
 }
 
@@ -56,7 +56,7 @@
 .section-element {
     font: inherit;
     text-align: center;
-    background-color: ivory;
+    background-color: #E4E8E8;
     padding: 20px;
 }
 
