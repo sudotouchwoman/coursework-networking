@@ -23,13 +23,10 @@ def page_not_found_redirect(e):
     return render_template('404.j2')
 
 @app.route('/menu', methods=['GET', 'POST'])
-@requires_login
-@requires_permission
 def get_welcome_page() -> str:
     return render_template('app_welcome.j2')
 
 @app.route('/exit', methods=['GET', 'POST'])
-@requires_login
 def get_exit_page() -> str:
     session.clear()
     return render_template('app_exit.j2')

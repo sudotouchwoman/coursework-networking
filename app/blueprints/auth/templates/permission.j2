@@ -8,6 +8,7 @@ Permission denied
 {% block body %}
 <div class="flex-container">
     <h2 class="error">You do not have rights to see contents of this page</h2>
-    <p>Click <a href="{{ url_for('auth_bp.login') }}">here</a> to warp to the login page</p>
+    <p>Click <a href="{{ url_for('auth_bp.login') }}">here</a> to warp to the login page or <a href="{{ url_for('get_welcome_page') }}" class="link">go to main menu</a></p>
 </div>
+
 {% endblock body %}
