@@ -4,8 +4,12 @@
         <meta charset="utf-8">
         <meta content="width=device-width, initial-scale=1"> 
         <title>{% block title %}{% endblock %}</title>
-        {%block styles%}{%endblock%}
-        {%block icon%}{%endblock%}
+        {%block styles%}
+        <link href="{{ url_for('static', filename='css/menu.css') }}" rel="stylesheet">
+        {%endblock%}
+        {%block icon%}
+        <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/404.png') }}">
+        {%endblock%}
     </head>
     <body>
         {% block body %}

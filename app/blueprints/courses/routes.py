@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify, render_template
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import datetime
 import os
 
 from app.content.courses import courses
+from app.policies import requires_permission, requires_login
+
 log = logging.getLogger(__name__)
 # enable logging routines
 # write log to a file with specified filename (provided via environmental variable)
@@ -20,8 +21,6 @@ formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(mes
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
-log.info(msg=f'LOG STARTED: [{datetime.datetime.now(tz=None)}]')
-
 courses_bp = Blueprint(
     'courses_bp',
     __name__,
@@ -29,10 +28,14 @@ courses_bp = Blueprint(
     static_folder='static/')
 
 @courses_bp.route('/menu', methods=['GET'])
+@requires_login
+@requires_permission
 def get_courses_menu():
     return render_template('courses_routes.j2')
 
 @courses_bp.route('/request/services', methods=['POST'])
+@requires_login
+@requires_permission
 def post_request_services():
     selected_lang = request.values.get('language_selection')
     selected_lang = 'All languages' if (selected_lang == '') else selected_lang
@@ -50,10 +53,14 @@ def post_request_services():
     return render_template('services_results.j2', empty=True, language=selected_lang)
 
 @courses_bp.route('/request/services', methods=['GET'])
+@requires_login
+@requires_permission
 def get_request_services():
     return render_template('services_selection.html')
 
 @courses_bp.route('/request/orders', methods=['POST'])
+@requires_login
+@requires_permission
 def post_request_orders():
     selected_threshold = request.values.get('threshold')
     if selected_threshold == '': selected_threshold = '0'
@@ -73,5 +80,7 @@ def post_request_orders():
 
 
 @courses_bp.route('/request/orders', methods=['GET'])
+@requires_login
+@requires_permission
 def get_request_orders():
     return render_template('order_selection.html')

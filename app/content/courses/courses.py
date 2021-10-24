@@ -2,11 +2,12 @@
 Business-process for courses (yet in a single module)
 '''
 
-from app.database.query import SelectQuery
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import datetime
-import os
+from flask import current_app
+
+from app.database.query import SelectQuery
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -23,15 +24,7 @@ formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(mes
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
-log.info(msg=f'LOG STARTED: [{datetime.datetime.now(tz=None)}]')
-
-DB_CONFIG_FILE = 'db-configs/db-courses.json'
-
-def load_db_config(path:str = DB_CONFIG_FILE) -> dict:
-    from json import loads
-    with open(path, 'r') as confile:
-        settings = loads(confile.read())
-    return settings
+DB_CONFIG = current_app.config['DB'].get('courses', None)
 
 COURSES_LANGUAGE_MAP_R = {
     'All languages' : '%',
@@ -42,7 +35,9 @@ COURSES_LANGUAGE_MAP_R = {
 
 class CourseController:
     def __init__(self, db_settings:dict) -> None:
-        if db_settings is None: raise TypeError
+        if db_settings is None:
+            log.fatal(msg=f'Failed to create courses controller! Is `courses` in db config?')
+            raise TypeError('Failed to create courses controller')
         self.SETTINGS = db_settings
 
     def get_services_for_language(self, language:str) -> tuple:
@@ -72,9 +67,6 @@ class CourseController:
 
     def get_orders_for_threshold(self, threshold:str) -> tuple:
         log.debug(msg=f'Gets orders with thresh of {threshold}')
-        def get_max_price():
-            return SelectQuery(self.SETTINGS)\
-                .execute_raw_query(f'SELECT price FROM orders ORDER BY total_price DESC LIMIT 1')
 
         if not threshold.isdigit():
             log.error(msg=f'Provided value is not a valid digit, abort')
@@ -99,4 +91,4 @@ class CourseController:
         log.debug(msg=f'Successfully collected from table, now returns results')
         return (True, filtered)
 
-GLOBAL_COURSE_CONTROLLER = CourseController(load_db_config(DB_CONFIG_FILE))
+GLOBAL_COURSE_CONTROLLER = CourseController(DB_CONFIG)

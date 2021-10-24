@@ -1,0 +1,19 @@
+{% extends "app_layout.html" %}
+
+{% block body %}
+<div class="flex-container">
+    <h1>Welcome back!</h1>
+    <p style="text-align: center; font-style: italic;"> There are two sections avaliable currently:</p>
+    <ul id="request-links">
+        <li>
+            <p>Click <a href="{{ url_for('get_courses_menu') }}">here</a> to go to courses menu</p>
+        </li>
+        <li>
+            <p>Click <a href="{{ url_for('get_hospital_menu') }}">here</a> to go to hospital menu</p>
+        </li>
+    </ul>
+    <div class="flex-conainter">
+        <p><a href="{{ url_for('get_exit_page') }}">Exit</a> site and clear session</p>
+    </div>
+</div>
+{% endblock body %}

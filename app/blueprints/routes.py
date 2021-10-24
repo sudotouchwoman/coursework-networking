@@ -5,7 +5,12 @@ Base app is created here and later blueprints are added to it via blueprint fact
 
 This module contains routes for main menu and something else, maybe
 '''
-from flask import Flask, render_template
+from flask import (
+    Flask,
+    render_template,
+    session)
+
+from app.policies import requires_login, requires_permission
 
 app = Flask(
     __name__,
@@ -17,14 +22,26 @@ app = Flask(
 def page_not_found_redirect(e):
     return render_template('404.j2')
 
-@app.route('/menu', methods= ['GET'])
-def get_main_page() -> str:
-    return 'This is main page. Check out /home/.. and /user/.. blueprints'
+@app.route('/menu', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
+def get_welcome_page() -> str:
+    return render_template('app_welcome.j2')
 
-@app.route('/hospital', methods=['GET'])
+@app.route('/exit', methods=['GET', 'POST'])
+@requires_login
+def get_exit_page() -> str:
+    session.clear()
+    return render_template('app_exit.j2')
+
+@app.route('/hospital', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
 def get_hospital_menu():
     return render_template('hospital_menu.j2')
 
-@app.route('/courses', methods=['GET'])
+@app.route('/courses', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
 def get_courses_menu():
     return render_template('courses_menu.j2')

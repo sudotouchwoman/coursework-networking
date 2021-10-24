@@ -20,8 +20,6 @@ formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(mes
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
-log.info(msg=f'LOG STARTED: [{datetime.datetime.now(tz=None)}]')
-
 class Connection:
     '''
     Wrapper for `pymysql` cursor and connection to ease database routines
@@ -83,25 +81,3 @@ def parse_cursor_exception(err: Error):
     if err.args[0] == 1146: log.error(msg=f'Invalid table name: {err.args[1]}')
     if err.args[0] == 1054: log.error(msg=f'Invalid column name: {err.args[1]}')
     if err.args[0] == 1064: log.error(msg=f'Invalid SQL syntax: {err.args[1]}')
-
-def test_connection(filename: str) -> bool:
-    # simple test for connection
-    # does not involve cursor execution
-    # merely check SQL server avaliability
-    log.info(msg='Test started')
-
-    from json import loads
-    try:
-        with open(filename,'r') as confile:
-            CONFIG = loads(confile.read())
-        with Connection(config=CONFIG) as conn:
-            log.info(msg='Connection established') if conn.CONNECTED else log.fatal(msg=f'Connection refused!')
-    except FileNotFoundError as fe:
-        log.error(msg=f'Failed to open config file: {fe}, stopping')
-        return False
-    log.info(msg='Test finished succesfully') if conn.CONNECTED else log.fatal(msg=f'Test failed!')
-    return conn.CONNECTED
-
-if __name__ == '__main__':
-    test_connection('../../db-configs/db-hospital.json')
-    test_connection('../../db-configs/db-courses.json')

@@ -1,11 +1,12 @@
 '''
 Business-process for hospital (yet in a single module)
 '''
-from app.database.query import SelectQuery
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import datetime
-import os
+from flask import current_app
+
+from app.database.query import SelectQuery
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -22,19 +23,13 @@ formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(mes
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
-log.info(msg=f'LOG STARTED: [{datetime.datetime.now(tz=None)}]')
-
-DB_CONFIG_FILE = 'db-configs/db-hospital.json'
-
-def load_db_config(path:str = DB_CONFIG_FILE) -> dict:
-    from json import loads
-    with open(path, 'r') as confile:
-        settings = loads(confile.read())
-    return settings
+DB_CONFIG = current_app.config['DB'].get('hospital', None)
 
 class HospitalController:
     def __init__(self, db_settings:dict) -> None:
-        if db_settings is None: raise TypeError
+        if db_settings is None: 
+            log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
+            raise TypeError('Failed to create Hospital  controller')
         self.SETTINGS = db_settings
 
     def get_department_list(self) -> tuple:
@@ -143,4 +138,4 @@ class HospitalController:
 
 
 
-GLOBAL_HOSPITAL_CONTROLLER = HospitalController(load_db_config(DB_CONFIG_FILE))
+GLOBAL_HOSPITAL_CONTROLLER = HospitalController(DB_CONFIG)

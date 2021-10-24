@@ -7,7 +7,7 @@ Each bp has its own `templates/' and `static/` folders
 
 Each bp is registered into base app with url prefix via `register_blueprint`
 '''
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, render_template
 import os
 import datetime
 from app.database import query
@@ -50,7 +50,7 @@ def get_dynamic_page():
 
 @home_bp.route('/db-connect', methods= ['GET'])
 def get_db_info():
-    db_settings = query.load_db_config('db-configs/db-hospital.json')
+    db_settings = query.load_db_config('config/db-hospital.json')
     results = query.SelectQuery(db_settings).execute_query(['id_patient', 'firstname', 'secondname', 'attending_doctor'], 'patient')
     PARAMS = {
         'username':'sakeof',

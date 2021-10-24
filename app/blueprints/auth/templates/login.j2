@@ -1,0 +1,25 @@
+{% extends "app_layout.html" %}
+{% block title %}
+Login
+{% endblock %}
+{%block icon%}
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/login.png') }}">
+{%endblock%}
+{% block body %}
+<div class="flex-container">
+
+{% if login_error %}
+<div>
+    <h2 class="error">Invalid credentials, please try again!</h2>
+</div>
+{% else %}
+<h2>Please enter your credentials!</h2>
+{% endif %}
+    <form class="login-form"  action="{{ url_for('auth_bp.login') }}" method="post">
+        <input type="text" name="login" placeholder="Login" aria-required="true">
+        <input type="password" name="password" placeholder="Password" aria-required="true">
+        <input type="submit" value="Send">
+    </form>
+    <a href="{{ url_for('get_welcome_page') }}">Warp to the main menu</a>
+</div>
+{% endblock body %}

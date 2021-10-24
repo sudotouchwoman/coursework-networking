@@ -1,21 +1,9 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import os
-import datetime
 from pymysql.err import ProgrammingError, OperationalError
 
-# have to import nearby module in such way as 
-# somehow while importing from blueprints package it needs 
-# first option, however at launch as __main__ 
-# it breaks with `attempted relative import with no known parent package`
-# well... there ARE parent packages as well as current directoty package
-# python is weird, will resolve this conflict later maybe
-try:
-    # import after being imported as a module
-    from . import connect
-except ImportError:
-    # import when being launched itself (i.e. for testing)
-    import connect
+from . import connect
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -32,16 +20,6 @@ handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
-
-log.info(msg=f'LOG STARTED: [{datetime.datetime.now(tz=None)}]')
-
-def load_db_config(path_to_config:str) -> dict:
-    '''
-    Load setting for db routines from `json` file at specified location `path_to_config`
-    '''
-    from json import loads
-    with open(path_to_config) as confile:
-        return loads(confile.read())
 
 class Query():
     '''
@@ -101,19 +79,3 @@ class SelectQuery(Query):
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
             return None
-
-if __name__ == '__main__':
-    # perform simple test for connecting to database and querying
-    # test correct query and one containing errors
-    # one problem bothering me is config source, should better use .py config instead of .json  one
-    # everything seems to work fine
-    
-    log.info(msg=f'Testing query performance')
-
-    query = SelectQuery(
-        load_db_config(path_to_config='../../db-configs/db-hospital.json'))             # load config from relative location ans pass to query
-    rows = query.execute_query(['id_doctor', 'first_name', 'second_name'], 'doctor')    # success
-    rows = query.execute_query(['id_patient', 'firstname', 'secondname'], 'patient')    # success
-    rows = query.execute_query([], 'patient')   # fails and returns None
-
-    log.info(msg=f'Test on query finished')
