@@ -19,3 +19,7 @@
 + Encapsulate used routes into `home` blueprint
 + Use `url_prefix` and separate `static` & `template` folders
 + Ensure everything works out fine
+## `2021-10-24`
++ Create simple authetication and authorization system implemented via decorators
++ Add blueprints for `courses`, `hospital` and `auth`
++ Create controllers for request queries
