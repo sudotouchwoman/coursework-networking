@@ -1,0 +1,16 @@
+{
+    "courses": {
+        "HOST":"127.0.0.1",
+        "PORT":3306,
+        "USER":"admin",
+        "PASSWORD":"password",
+        "SCHEMA":"courses"
+    },
+    "hospital": {
+        "HOST":"127.0.0.1",
+        "PORT":3306,
+        "USER":"admin",
+        "PASSWORD":"password",
+        "SCHEMA":"hospital"
+    }
+}

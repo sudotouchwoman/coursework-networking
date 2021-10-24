@@ -1,0 +1,31 @@
+{% extends 'app_layout.html' %}
+
+{%block title%}
+Request selection
+{%endblock%}
+
+{%block styles%}
+    <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
+{%endblock%}
+
+{%block icon%}
+<link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
+{%endblock%}
+
+{%block body%}
+<div class="flex-container">
+    <aside class="item links" id="request-links">
+        <ul>
+            <li>
+                <a href="{{ url_for('hospital_bp.get_request_department_stats') }}">View information about our departments</a>
+            </li>
+            <li>
+                <a href="{{ url_for('hospital_bp.get_request_doctor_stats') }}">Assingation list</a></li>
+        </ul>
+    </aside>
+    <aside class="item bio">
+        Choose request to perform: create report for specific department or find the employee of the month!
+    </aside>
+</div>
+{%endblock%}
