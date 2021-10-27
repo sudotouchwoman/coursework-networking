@@ -8,6 +8,7 @@ def create_app(settings):
         app.config['SECRET_KEY'] = settings.SECRET_KEY
         app.config['POLICIES'] = settings.POLICIES
         app.config['DB'] = settings.DB
+        app.config['QUERIES'] = settings.QUERIES
 
         from .home.routes import home_bp
         from .courses.routes import courses_bp

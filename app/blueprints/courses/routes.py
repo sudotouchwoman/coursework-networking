@@ -16,7 +16,7 @@ LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-courses-app-state.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -31,6 +31,7 @@ courses_bp = Blueprint(
 @requires_login
 @requires_permission
 def get_courses_menu():
+    log.info(msg=f'Renders courses menu page')
     return render_template('courses_routes.j2')
 
 @courses_bp.route('/request/services', methods=['POST'])
@@ -39,9 +40,9 @@ def get_courses_menu():
 def post_request_services():
     selected_lang = request.values.get('language_selection')
     selected_lang = 'All languages' if (selected_lang == '') else selected_lang
+    log.debug(msg=f'Collected language: {selected_lang}')
     
     results = courses.GLOBAL_COURSE_CONTROLLER.get_services_for_language(selected_lang)
-    log.debug(msg=f'Controller response: {results}')
     
     if results[0]: return render_template(
         'services_results.j2',
@@ -56,6 +57,7 @@ def post_request_services():
 @requires_login
 @requires_permission
 def get_request_services():
+    log.info(msg=f'Renders service selection page')
     return render_template('services_selection.html')
 
 @courses_bp.route('/request/orders', methods=['POST'])
@@ -66,7 +68,6 @@ def post_request_orders():
     if selected_threshold == '': selected_threshold = '0'
     log.debug(msg=f'Selected threshold of {selected_threshold}')
     results = courses.GLOBAL_COURSE_CONTROLLER.get_orders_for_threshold(selected_threshold)
-    log.debug(msg=f'Controller response: {results}')
 
     if results[0]: return render_template(
         'order_results.j2',
@@ -83,4 +84,5 @@ def post_request_orders():
 @requires_login
 @requires_permission
 def get_request_orders():
+    log.info(msg=f'Renders order selection page')
     return render_template('order_selection.html')

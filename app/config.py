@@ -10,6 +10,7 @@ class Config(ABC):
     SECRET_KEY = os.getenv('APP_SECRET_KEY', 'cringe')
     POLICIES = load_json_config('config/policies.json')
     DB = load_json_config('config/db.json')
+    QUERIES  = os.getenv('SQL_QUERY_DIR', 'sql/')
 
 class DevConfig(Config):
 

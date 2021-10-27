@@ -1,6 +1,6 @@
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import os
 from pymysql.err import ProgrammingError, OperationalError
 
 from . import connect
@@ -16,7 +16,7 @@ log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 # handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -34,9 +34,6 @@ class Query():
     def __init__(self, connection_settings:dict):
         self.DB_CONFIG = connection_settings
         return None
-
-    def execute_query(self):
-        raise NotImplementedError
 
     def execute_raw_query(self, raw:str):
         # execute "raw" query, i.e. without processing it
@@ -57,25 +54,22 @@ class Query():
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
             return None
-    
-class SelectQuery(Query):
-    def execute_query(self, rows:list, table:str, limit:str = None):
-        '''
-        Execute `SELECT` query for the given `table`. Selects `rows` with optional `limit`
-        '''
-        log.debug(msg=f'Executes query')
-        SQL_QUERY = f'SELECT {", ".join(rows)} FROM {table}'
-        if isinstance(limit, str) or isinstance(limit, int) and int(limit) > 0: SQL_QUERY += f' LIMIT {limit}'
-        
-        log.debug(msg=f'Query is: {SQL_QUERY}')
+
+    def execute_with_args(self, query: str, *args) -> tuple or None:
+
+        log.debug(msg=f'Executes query with params: {args}')
+        log.debug(msg=f'Request is: {query}')
+
         try:
             with connect.Connection(self.DB_CONFIG) as conn:
                 if not conn.CONNECTED: return None
-                conn.CURSOR.execute(query=SQL_QUERY)
-                fetched = [row for row in conn.CURSOR.fetchall()]
-                log.debug(msg=f'Fetched {len(fetched)} rows')
+                conn.CURSOR.execute(query, args)
+                fetched = ( row for row in conn.CURSOR.fetchall() )
+                log.debug(msg=f'Affected {conn.CURSOR.rowcount} rows')
                 log.debug(msg=f'Fetched this: {fetched}')
                 return fetched
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
             return None
+            
+        

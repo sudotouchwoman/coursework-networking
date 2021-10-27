@@ -2,7 +2,6 @@ from pymysql import connect
 from pymysql.err import InterfaceError, OperationalError, Error
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import datetime
 import os
 
 log = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -67,7 +66,7 @@ class Connection:
         else:
             log.debug(msg=f'Connection was not opened, nothing to close')
         if exc_val is not None:
-            log.debug(msg=f'Exception info: {exc_type}::{exc_val}')
+            log.warning(msg=f'Exception info: {exc_type}::{exc_val}')
             parse_cursor_exception(exc_val)
 
 def parse_connection_exception(err: Error):
