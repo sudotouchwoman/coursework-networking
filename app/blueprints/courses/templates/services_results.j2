@@ -1,11 +1,12 @@
 {% extends "courses_results.html" %}
 {% block results %}
 <h1 id="fetched-message"><b>The results for {{ language }}:</b></h1>
+<p>Click <a href="{{ url_for('courses_bp.add_service') }}">here</a> to add new item</p>
 {% endblock %}
 {% block options %}
 {% if empty %}
 <div>
-    <p style="text-align: center;">Nothing found for your request</p>
+    <h1 style="text-align: center; color: crimson;">Nothing was found for your request</p>
 </div>
 {% endif %}
 {% if has_options %}
@@ -15,6 +16,7 @@
         <td>Title</td>
         <td>Tutor attendance</td>
         <td>Price (&#8381;)</td>
+        <td></td>
     </tr>
     {% for row in options %}
     <tr>
@@ -22,6 +24,12 @@
         <td> {{ row[1] }} </td>
         <td> {{ row[2] }} </td>
         <td> {{ row[4] }} </td>
+        <td>
+            <form action="{{ url_for('courses_bp.delete_service') }}" method="post">
+                <input type="hidden" name="service_id" value="{{ row[0] }}">
+                <input class="remove-button" type="submit" name="delete" value="Remove">
+            </form> 
+        </td>
     </tr>
     {% endfor %}
 </table>

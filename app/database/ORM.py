@@ -57,3 +57,15 @@ class DataSource(ORM):
 
         log.debug(msg=f'Collected this: {fetched}')
         return fetched
+
+class DataModifier(DataSource):
+    def update_table(self, query: str, *args) -> True or False:
+        if not query in self.queries: return False
+        log.debug(msg=f'Query to update found, performing')
+
+        actor = Query(self.config)
+        result_status = actor\
+            .execute_with_args(self.queries[query], *args)
+
+        log.debug(msg=f'Query executed with status {result_status}')
+        return True

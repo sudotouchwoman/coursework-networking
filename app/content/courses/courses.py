@@ -7,7 +7,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from flask import current_app
 
-from app.database.ORM import DataSource
+from app.database.ORM import DataModifier, DataSource
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -31,7 +31,8 @@ COURSES_LANGUAGE_MAP_R = {
     'All languages' : '%',
     'English' : 'EN',
     'French' : 'FR',
-    'Japanese':'JP'
+    'Japanese':'JP',
+    'German' : 'German'
 }
 
 class CourseController:
@@ -42,6 +43,7 @@ class CourseController:
             raise TypeError('Failed to create courses controller')
         self.SETTINGS = db_settings
         self.SQL = sql_dir
+
 
     def get_services_for_language(self, language:str) -> tuple:
         log.debug(msg=f'Gets services for {language} language')
@@ -71,6 +73,7 @@ class CourseController:
         log.debug(msg=f'Successfully collected from table, now returns results')
         return (True, process_rows())
 
+
     def get_orders_for_threshold(self, threshold:str) -> tuple:
         log.debug(msg=f'Gets orders with thresh of {threshold}')
 
@@ -95,5 +98,28 @@ class CourseController:
         
         log.debug(msg=f'Successfully collected from table, now returns results')
         return (True, process_rows())
+
+
+    def add_service(self, new_row: dict):
+        log.debug(msg=f'Got request to edit table of services')
+        
+        with_tutor = lambda t: 1 if t == 'on' else 0
+        lang_code = lambda l: COURSES_LANGUAGE_MAP_R.get(l, 'Any')
+        
+        row_sanitized = (
+            lang_code(new_row.get('language')),
+            new_row.get('title', 'Courses'),
+            new_row.get('price', None),
+            with_tutor(new_row.get('tutor', 0))
+        )
+        DataModifier(self.SETTINGS, self.SQL).update_table('insert-new-service', *row_sanitized)
+
+    def remove_service(self, service_id: str):
+        log.debug(msg=f'Got request to remove table item')
+        if not service_id.isdigit():
+            log.warning(msg=f'Wrong id encountered: {service_id}, abort')
+            return
+        DataModifier(self.SETTINGS, self.SQL).update_table('delete-service', service_id)
+
 
 GLOBAL_COURSE_CONTROLLER = CourseController(DB_CONFIG, SQL_DIR)
