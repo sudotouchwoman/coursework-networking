@@ -1,10 +1,11 @@
 '''
 Business-process for courses (yet in a single module)
 '''
-
 import os
+import datetime
 import logging
 from logging.handlers import TimedRotatingFileHandler
+
 from flask import current_app
 
 from app.database.ORM import DataModifier, DataSource
@@ -114,12 +115,75 @@ class CourseController:
         )
         DataModifier(self.SETTINGS, self.SQL).update_table('insert-new-service', *row_sanitized)
 
+
     def remove_service(self, service_id: str):
         log.debug(msg=f'Got request to remove table item')
         if not service_id.isdigit():
             log.warning(msg=f'Wrong id encountered: {service_id}, abort')
             return
         DataModifier(self.SETTINGS, self.SQL).update_table('delete-service', service_id)
+
+
+    def fetch_all_services(self) -> tuple:
+        log.debug(msg=f'Got request to fetch all services')
+        log.debug(msg=f'Performs query')
+
+        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('cart-fetch-services')
+        log.debug(msg=f'Finished query')
+        if selected is None: return (False,)
+
+        has_tutor = lambda b: "With tutor" if (b > 0) else "Without tutor"
+        pretty_print_price = lambda p: f'{int(p)}'
+
+        def process_rows():
+            for row in selected:
+                yield {
+                    'service_id': row[0],
+                    'service_name': row[1],
+                    'has_tutor': has_tutor(row[2]),
+                    'lang': row[3],
+                    'price': pretty_print_price(row[4])
+                }
+
+        log.debug(msg=f'Successfully collected from table, now returns results')
+        return (True, process_rows())
+
+    def find_service(self, service_id: str) -> tuple:
+        log.debug(msg=f'Got request to lookup service')
+        if not service_id.isdigit():
+            log.warning(msg=f'Wrong id encountered: {service_id}, abort')
+            return (False,)
+        service_data = DataSource(self.SETTINGS, self.SQL).fetch_results('cart-find-service', service_id)
+        if service_data is None: return (False,)
+
+        has_tutor = lambda b: "With tutor" if (b > 0) else "Without tutor"
+        pretty_print_price = lambda p: f'{int(p)}'
+        service_data = list(service_data)[0]
+        return (
+            True,
+            {
+            'service_id': service_data[0],
+            'service_name': service_data[1],
+            'has_tutor': has_tutor(service_data[2]),
+            'lang': service_data[3],
+            'price': pretty_print_price(service_data[4])
+            })
+
+    
+    def create_new_order(self, order_details: list, client: str) -> None:
+        log.debug(msg=f'Got request to create new order!')
+        if not isinstance(order_details, list):
+            log.warning(msg=f'Order details are invalid, abort')
+            return
+        if len(order_details) == 0:
+            log.warning(msg=f'The order details are empty, abort')
+            return
+
+        today = datetime.date.today().isoformat()
+        total_price = sum([int(service['price']) for service in order_details])
+
+        DataModifier(self.SETTINGS, self.SQL).update_table('create-order', client, today, total_price)
+        log.debug(msg=f'Created new record in orders')
 
 
 GLOBAL_COURSE_CONTROLLER = CourseController(DB_CONFIG, SQL_DIR)

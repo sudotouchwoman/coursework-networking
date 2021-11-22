@@ -1,13 +1,16 @@
-from flask import Blueprint, request, jsonify, render_template, url_for
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import os
-import datetime
 
 from werkzeug.utils import redirect
+from flask import (
+    Blueprint, request,
+    jsonify, render_template,
+    url_for, session)
 
 from app.content.courses import courses
 from app.policies import requires_permission, requires_login
+from .cart import delete_from_cart, add_to_cart, get_cart
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -124,7 +127,6 @@ def delete_service():
 @requires_login
 @requires_permission
 def add_service():
-
     if request.method == 'POST':
         log.info(msg=f'Request to add new service')
         new_service = { key: value for key, value in request.form.items() if value is not None and str(value) != '' }
@@ -132,4 +134,50 @@ def add_service():
         return render_template('services_add.j2', show_redirect=True)
 
     return render_template('services_add.j2', show_redirect=False)
+
+
+@courses_bp.route('/cart', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
+def show_cart():
+    log.info(msg=f'Renders cart page')
+    if request.method == 'GET':
+        services = courses.GLOBAL_COURSE_CONTROLLER.fetch_all_services()
+        services = services[1] if services[0] else False
+        cart = get_cart()
+        return render_template('cart.html', items=services, cart=cart)
+
+    log.debug(msg=f'Request to add item in the cart recieved')
+    service_to_add = request.values.get('service_id', '')
+    add_to_cart(service_to_add)
+    return redirect(url_for('courses_bp.show_cart'))
+    # render the cart page
+    # if post, add/remove item?
+    # bruh
+
+
+@courses_bp.route('/create-order', methods=['POST'])
+@requires_login
+@requires_permission
+def create_order():
+    log.info(msg=f'Request to create new order recieved')
+    
+    # create order record in the database from user data
+    cart = get_cart()
+    client = session['group_name']
+    courses.GLOBAL_COURSE_CONTROLLER.create_new_order(order_details=cart, client=client)
+
+    return redirect(url_for('courses_bp.show_cart'))
+
+
+@courses_bp.route('/clear-cart', methods=['POST'])
+@requires_login
+@requires_permission
+def clear_cart():
+    log.info(msg=f'Request to clear the cart recieved')
+    # call delete from cart
+    # further can moved into controller logic maybe?
+    # if only the cart will be persistent in the database
+    delete_from_cart()
+    return redirect(url_for('courses_bp.show_cart'))
     

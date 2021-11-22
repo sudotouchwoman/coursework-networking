@@ -13,8 +13,9 @@ class PolicyController:
     def get_group_name(self, login:str, password:str):
         
         selected = DataSource(self.SETTINGS, self.SQL).fetch_results('select-group-names', login, password)
+        if selected is None: return None
         selected = list(selected)
-        if selected is None or len(selected) == 0: return None
+        if len(selected) == 0: return None
         return selected[0][0]
 
 GLOBAL_ROLE_CONTROLLER = PolicyController(DB_CONFIG, SQL_DIR)
