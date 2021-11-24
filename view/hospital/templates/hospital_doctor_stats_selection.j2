@@ -3,6 +3,7 @@
 Assignation list
 {% endblock title %}
 {% block styles %}
+    {{ super() }}
         <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
         <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
 {% endblock styles %}
@@ -10,17 +11,29 @@ Assignation list
         <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
 {% endblock icon %}
 {% block body %}
-<div class="flex-container">
+<div class="flex-container row">
     {% if has_options %}
-    <form action="{{ url_for('hospital_bp.post_request_doctor_stats') }}" method="post">
-        <label for="doctor">Select doctor to create a report:</label>
-        <select class="select-select" name="doctor_selection">
-    {% for doctor in doctors %}
-            <option value="{{ doctor }}">{{doctor}}</option>
-    {% endfor %}
-        </select>
-        <input type="submit" placeholder="Create report">
+    <h2>
+        <strong>
+            Select doctor to create a report:
+        </strong>
+    </h2>
+    <div class="col-md-1">
+
+    </div>
+    <form class="form col-md-10" action="{{ url_for('hospital_bp.post_request_doctor_stats') }}" method="post">
+        <div class="form-group">
+            <select class="select-select form-control" name="doctor_selection">
+        {% for doctor in doctors %}
+                <option value="{{ doctor['id'] }}">{{ doctor['name'] }}</option>
+        {% endfor %}
+            </select>
+            <input type="submit" class="form-control" placeholder="Create report">
+        </div>
     </form>
+    <div class="col-md-1">
+        
+    </div>
     {% else %}
         <div class="no-options">
             <p>Looks like there was an error on server! Refresh page or come back later...</p>

@@ -6,19 +6,24 @@ Login
 <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/login.png') }}">
 {%endblock%}
 {% block body %}
-<div class="flex-container">
-
-{% if login_error %}
-<div>
-    <h2 class="error">Invalid credentials, please try again!</h2>
-</div>
-{% else %}
-<h2>Please enter your credentials!</h2>
-{% endif %}
-    <form class="login-form"  action="{{ url_for('auth_bp.login') }}" method="post">
-        <input type="text" name="login" placeholder="Login" aria-required="true">
-        <input type="password" name="password" placeholder="Password" aria-required="true">
-        <input type="submit" value="Send">
-    </form>
+<div class="container">
+    <div class="row">
+        {% if login_error %}
+        <div class="alert alert-danger">
+            <h2 style="text-align: center;">Invalid credentials, please try again!</h2>
+        {% else %}
+        <div class="alert alert-warning">
+            <h2 style="text-align: center;">Please enter your credentials!</h2>
+        {% endif %}
+            <form class="form" action="{{ url_for('auth_bp.login') }}" method="post">
+                    <label for="login"></label>
+                    <input type="text" class="form-control  col-md-6" name="login" id="login" placeholder="Login" aria-required="true">
+                    <label for="login"></label>
+                    <input type="password" class="form-control  col-md-6" name="password" id="password" placeholder="Password" aria-required="true">
+                    <label for="submit"></label>
+                    <input type="submit" class="form-control" id="submit" value="Send">
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock body %}

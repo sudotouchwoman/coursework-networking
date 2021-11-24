@@ -3,6 +3,7 @@
 Hospital menu
 {% endblock title %}
 {% block styles %}
+        {{ super() }}
         <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
         <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
 {% endblock styles %}
@@ -11,8 +12,10 @@ Hospital menu
 {% endblock icon %}
 {% block body %}
     <div class="flex-container">
-        <h1 style="text-align: center; font-family: sans-serif;">Welcome to the hospital section</h1>
-        <p><a href="{{ url_for('hospital_bp.get_hospital_menu') }}" class="link">Go to hospital queries</a></p>
-        <p><a href="{{ url_for('welcome_page') }}" class="link">Go to main menu</a></p>
+        <div class="row">
+            <h1 style="text-align: center; font-family: sans-serif;">Hospital section</h1>
+            <p><a href="{{ url_for('hospital_bp.get_hospital_menu') }}" class="link">Go to hospital queries</a></p>
+            <p><a href="{{ url_for('welcome_page') }}" class="link">Go to main menu</a></p>
+        </div>
     </div>
 {% endblock body %}

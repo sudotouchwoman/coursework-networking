@@ -101,7 +101,10 @@ class HospitalController:
 
         def process_rows():
             for row in selected:
-                yield row[0]
+                yield {
+                    'id': row[0],
+                    'name': ' '.join(row[1:])
+                    }
 
         log.debug(msg=f'Fetched list of doctors')
         return process_rows()
@@ -117,7 +120,7 @@ class HospitalController:
             log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
             return None
 
-        handle_null = lambda s: 'No information avaliable' if s == '' or s is None else s
+        handle_null = lambda s: 'N/A' if s is None or not s else s
 
         def process_rows():
             for i, row in enumerate(selected):
@@ -130,3 +133,22 @@ class HospitalController:
         
         log.debug(msg=f'Successfully fetched report for given doctor')
         return process_rows()
+
+
+    def check_chambers_capacity(self) -> int or None:
+        log.debug(msg=f'Checks capacity of chambers')
+
+        chamber_data = DataSource(self.SETTINGS, self.SQL).fetch_results('check-chambers')
+        try:
+            chamber_data = list(chamber_data)[0]
+        except IndexError:
+            log.error(msg=f'Chambers must be full')
+            return None
+        except TypeError:
+            log.error(msg=f'Error occured during db connection')
+            return None
+
+        log.debug(msg=f'Chamber {chamber_data[0]} is the biggest chamber with free space')
+        return chamber_data[0]
+        
+        

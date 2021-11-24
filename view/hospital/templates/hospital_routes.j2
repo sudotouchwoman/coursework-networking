@@ -5,6 +5,7 @@ Request selection
 {%endblock%}
 
 {%block styles%}
+    {{ super() }}
     <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
     <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
 {%endblock%}
@@ -14,14 +15,18 @@ Request selection
 {%endblock%}
 
 {%block body%}
-<div class="flex-container">
+<div class="flex-container container">
     <aside class="item links" id="request-links">
-        <ul>
+        <ul class nav nav-pills nav-stacked>
             <li>
                 <a href="{{ url_for('hospital_bp.get_request_department_stats') }}">View information about our departments</a>
             </li>
             <li>
-                <a href="{{ url_for('hospital_bp.get_request_doctor_stats') }}">Assingation list</a></li>
+                <a href="{{ url_for('hospital_bp.get_request_doctor_stats') }}">Assingation list</a>
+            </li>
+            <li>
+                <a href="{{ url_for('patients_bp.list_patients') }}">List of patients</a>
+            </li>
         </ul>
     </aside>
     <aside class="item bio">
