@@ -11,10 +11,10 @@ def create_app(settings):
         app.config['QUERIES'] = settings.QUERIES
 
         from .hospital.routes import hospital_bp
-        from .patiens.routes import patients_bp
+        from .patients.routes import patients_bp
         from .auth.routes import auth_bp
         
         app.register_blueprint(hospital_bp, url_prefix='/hospital')
-        app.register_blueprint(patients_bp, url_prefix='/patient')
+        app.register_blueprint(patients_bp, url_prefix='/patients')
         app.register_blueprint(auth_bp, url_prefix='/auth')
         return app
