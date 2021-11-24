@@ -5,7 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 from flask import Blueprint, request, render_template
 
 from app.policies import requires_login, requires_permission
-from .hospital import HospitalController
+from controller.hospital import HospitalController
 
 log = logging.getLogger(__name__)
 # enable logging routines

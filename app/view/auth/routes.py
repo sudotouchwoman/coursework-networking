@@ -10,7 +10,7 @@ from flask import (
     redirect,
     render_template)
 
-from .auth import PolicyController
+from controller.auth import PolicyController
 
 log = logging.getLogger(__name__)
 # enable logging routines
