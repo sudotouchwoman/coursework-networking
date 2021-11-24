@@ -6,7 +6,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from flask import current_app
 
-from app.database.query import SelectQuery
+from app.database.ORM import DataSource
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -18,33 +18,38 @@ LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-hospital-app-state.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
 DB_CONFIG = current_app.config['DB'].get('hospital', None)
+SQL_DIR = current_app.config.get('QUERIES', None)
 
 class HospitalController:
-    def __init__(self, db_settings:dict) -> None:
-        if db_settings is None: 
+    def __init__(self, db_settings: dict, sql_dir: str) -> None:
+        if db_settings is None or sql_dir is None:
+            log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
             log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
             raise TypeError('Failed to create Hospital  controller')
         self.SETTINGS = db_settings
+        self.SQL = sql_dir
 
     def get_department_list(self) -> tuple:
         # candidate for caching
         log.debug(msg=f'Fetches department list')
-        selected = SelectQuery(self.SETTINGS)\
-            .execute_raw_query('SELECT department.department_name from department;')
-        
+        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('department-list')
+
         if selected is None:
             log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
             return (False,)
         
-        selected = (row[0] for row in selected)
+        def process_rows():
+            for row in selected:
+                yield row[0]
+
         log.debug(msg=f'Fetched department list')
-        return (True, selected)
+        return (True, process_rows())
 
     def get_departments_report(self, department:str):
         # assume that department is already sanutized (used with html select tag)
@@ -53,89 +58,75 @@ class HospitalController:
 
         log.debug(msg=f'Produces report for selected department {department}')
 
-        selected = SelectQuery(self.SETTINGS)\
-                .execute_raw_query(f'''
-                SELECT department.department_head as 'Head', 
-                SUM(chamber.totalspace) as 'Total space' 
-                from department JOIN chamber ON chamber.department = id_department
-                WHERE department.department_name like "{department}"
-                GROUP BY id_department;
-                            ''')
+        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('department-report', department)
 
         if selected is None:
             log.error(msg=f'Failed to create report: is SQL server running? See db logs for more detailed info')
             return (False,)
 
-        selected = selected[0]
+        selected = list(selected)[0]
         
         # I considered it to be a good idea to split one query with two joins into two sequential
         # such request would be performed faster
         # there are funny moves with fetched data as SelectQuery merely redirects pymysql results, which is formed by a list of tuples
         # in this particular case we would only return a single row thus I assign selected = selected[0]
         # to avoid messy double indices
-        head_name = SelectQuery(self.SETTINGS)\
-            .execute_raw_query(f'''
-            SELECT doctor.first_name, second_name from doctor WHERE id_doctor = {selected[0]};
-            '''
-            )
-        
+        head_name = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctor-initials', selected[0])
+
         if head_name is None:
             log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with id = {selected[0]}')
             return (False,)
 
-        selected = list(selected)
-        selected[0] = ' '.join(head_name[0])
-        selected = tuple(selected)
-        log.debug(msg=f'Created report: {selected}')
-        return (True, selected)
+        head_name = list(head_name)[0]
+
+        def process_rows():
+            yield ' '.join(head_name)
+            yield selected[1]
+
+        return (True, process_rows())
 
     def get_doctors(self):
         # also condidate for caching
         log.debug(msg=f'Fetches list of doctors')
-        selected = SelectQuery(self.SETTINGS)\
-            .execute_raw_query('SELECT doctor.second_name from doctor;')
+        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctorlist')
 
         if selected is None:
             log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
             return (False,)
 
-        selected = (row[0] for row in selected)
+        def process_rows():
+            for row in selected:
+                yield row[0]
+
         log.debug(msg=f'Fetched list of doctors')
-        return (True, selected)
+        return (True, process_rows())
 
 
     def get_assigned_to_doctor(self, doctor:str):
 
         log.debug(msg=f'Collects assignees for {doctor}')
 
-        selected = SelectQuery(self.SETTINGS)\
-            .execute_raw_query(
-        f'''select
-            patient.firstname,
-            patient.secondname,
-            patient.initial_diagnosis, 
-            patient.outcome_diagnosis 
-            from patient join doctor on attending_doctor = doctor.id_doctor 
-            and doctor.second_name like '{doctor}';'''
-                            )
+        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('hospital-assignment-list', doctor)
 
         if selected is None:
-            log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with creditentials {doctor}')
+            log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
             return (False,)
 
         handle_null = lambda s: 'No information avaliable' if s == '' or s is None else s
-        
-        for i, row in enumerate(selected):
-            row = list(row)
-            row[1] = ' '.join(row[:2])
-            row[2] = handle_null(row[2])
-            row[3] = handle_null(row[3])
-            row[0] = i + 1
-            selected[i] = tuple(row)
+
+        def process_rows():
+            for i, row in enumerate(selected):
+                new_row = (
+                i + 1,
+                ' '.join(row[:2]),
+                handle_null(row[2]),
+                handle_null(row[3]),
+                )
+                yield new_row
         
         log.debug(msg=f'Successfully fetched report for given doctor')
-        return (True, selected)
+        return (True, process_rows())
 
 
 
-GLOBAL_HOSPITAL_CONTROLLER = HospitalController(DB_CONFIG)
+GLOBAL_HOSPITAL_CONTROLLER = HospitalController(DB_CONFIG, SQL_DIR)

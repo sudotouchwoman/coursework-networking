@@ -1,0 +1,1 @@
+INSERT INTO services(language, title, price, tutor) VALUES (%s, %s, %s, %s);

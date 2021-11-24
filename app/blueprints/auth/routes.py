@@ -2,14 +2,15 @@ from flask import (
     Blueprint,
     request,
     session,
+    url_for,
+    redirect,
     render_template)
 
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import os
-from flask.helpers import url_for
 
-from werkzeug.utils import redirect
+from .auth import GLOBAL_ROLE_CONTROLLER
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -21,7 +22,7 @@ LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-auth-app-state.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -41,20 +42,12 @@ def login():
     login = request.values.get('login')
     password = request.values.get('password')
 
-    if login == 'admin' and password == 'admin':
-        session['group_name'] = 'admin'
-        log.info(msg=f'Admin logged in')
-        return redirect(url_for('get_welcome_page'))
+    role_name = GLOBAL_ROLE_CONTROLLER.get_group_name(login=login, password=password)
+    if role_name is None:
+        log.info(msg=f'Encountered invalid credentials: {login}, {password}')
+        return render_template('login.j2', login_error=True)
 
-    if login == 'doctor' and password == 'doctor':
-        session['group_name'] = 'doctor'
-        log.info(msg=f'Doctor logged in')
-        return redirect(url_for('get_welcome_page'))
+    session['group_name'] = role_name
+    log.info(msg=f'{role_name} logged in')
+    return redirect(url_for('get_welcome_page'))
 
-    if login == 'teacher' and password == 'teacher':
-        session['group_name'] = 'teacher'
-        log.info(msg=f'Teacher logged in')
-        return redirect(url_for('get_welcome_page'))
-
-    log.info(msg=f'Encountered invalid credentials: {login}, {password}')
-    return render_template('login.j2', login_error=True)

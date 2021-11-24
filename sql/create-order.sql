@@ -1,0 +1,1 @@
+INSERT INTO orders(client, date, total_price) VALUES (%s, %s, %s);

@@ -20,7 +20,14 @@ Language courses
                 <a href="{{ url_for('courses_bp.get_request_services') }}">Find courses for specific language</a>
             </li>
             <li>
-                <a href="{{ url_for('courses_bp.get_request_orders') }}">Find orders and filter by price</a></li>
+                <a href="{{ url_for('courses_bp.list_services') }}">List all services</a>
+            </li>
+            <li>
+                <a href="{{ url_for('courses_bp.get_request_orders') }}">Find orders and filter by price</a>
+            </li>
+            <li>
+                <a href="{{ url_for('courses_bp.show_cart') }}">Go to cart</a>
+            </li>
         </ul>
     </aside>
     <aside class="item bio">

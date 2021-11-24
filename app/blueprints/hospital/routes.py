@@ -16,7 +16,7 @@ LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-hospital-app-state.log')
 log.disabled = os.getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='m', interval=10, backupCount=1)
+handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
 formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
 handler.setFormatter(formatter)
 log.addHandler(handler)
@@ -31,6 +31,7 @@ hospital_bp = Blueprint(
 @requires_login
 @requires_permission
 def get_hospital_menu():
+    log.info(msg=f'Renders hospital menu page')
     return render_template('hospital_routes.j2')
 
 @hospital_bp.route('/request/department-stats', methods=['POST'])
@@ -40,7 +41,6 @@ def post_request_department_stats():
     selected_department = request.values.get('department_selection')
     
     results = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_departments_report(selected_department)
-    log.debug(msg=f'Controller response: {results}')
     
     if results[0]: return render_template(
         'hospital_department_stats_results.j2',
@@ -55,8 +55,8 @@ def post_request_department_stats():
 @requires_login
 @requires_permission
 def get_request_department_stats():
+    log.info(msg=f'Renders departments page')
     departments = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_department_list()
-    log.debug(msg=f'Controller response: {departments}')
 
     if departments[0]:
         return render_template(
@@ -64,14 +64,15 @@ def get_request_department_stats():
             has_options=departments[0],
             departments=departments[1])
 
+    log.warning(msg=f'Renders empty page as fetched data is empty')
     return render_template('hospital_empty.j2')
 
 @hospital_bp.route('/request/doctor-stats', methods=['GET'])
 @requires_login
 @requires_permission
 def get_request_doctor_stats():
+    log.info(msg=f'Renders doctors page')
     doctors = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_doctors()
-    log.debug(msg=f'Contoller response: {doctors}')
 
     if doctors[0]:
         return render_template(
@@ -79,6 +80,7 @@ def get_request_doctor_stats():
             has_options=doctors[0],
             doctors=doctors[1])
     
+    log.warning(msg=f'Renders empty page as fetched data is empty')
     return render_template('hospital_empty.j2')
 
 @hospital_bp.route('/request/doctor-stats', methods=['POST'])
@@ -88,7 +90,6 @@ def post_request_doctor_stats():
     selected_doctor = request.values.get('doctor_selection')
     
     results = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_assigned_to_doctor(selected_doctor)
-    log.debug(msg=f'Controller response: {results}')
 
     if results[0]: return render_template(
         'hospital_doctor_stats_results.j2',

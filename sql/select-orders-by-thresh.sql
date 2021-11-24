@@ -1,0 +1,1 @@
+SELECT * FROM orders WHERE total_price > %s ORDER BY total_price DESC
