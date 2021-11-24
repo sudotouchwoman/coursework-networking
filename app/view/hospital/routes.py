@@ -1,4 +1,4 @@
-import os
+from os import getenv
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -12,9 +12,9 @@ log = logging.getLogger(__name__)
 # write log to a file with specified filename (provided via environmental variable)
 # set needed level and optionally disable logging completely
 
-DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-hospital-app-state.log')
-log.disabled = os.getenv('LOG_ON', "True") == "False"
+DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
+LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/log-hospital-app-state.log')
+log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)

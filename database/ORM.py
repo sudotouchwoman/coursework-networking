@@ -1,6 +1,7 @@
-import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from os import getenv, listdir
+from os.path import isdir
 from abc import ABC
 from functools import lru_cache
 
@@ -11,9 +12,9 @@ log = logging.getLogger(__name__)
 # write log to a file with specified filename (provided via environmental variable)
 # set needed level and optionally disable logging completely
 
-DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
-log.disabled = os.getenv('LOG_ON', "True") == "False"
+DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
+LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
+log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 # handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
@@ -27,8 +28,8 @@ class ORM(ABC):
     @lru_cache(maxsize=1)
     def collect_queries(querydir: str) -> dict:
         log.info(msg=f'Collects queries from the provided path')
-        if not os.path.isdir(querydir): raise NotADirectoryError
-        queries = { file.split('.')[0] : open(querydir+file, mode='r').read() for file in os.listdir(querydir) }
+        if not isdir(querydir): raise NotADirectoryError
+        queries = { file.split('.')[0] : open(querydir+file, mode='r').read() for file in listdir(querydir) }
         log.info(msg=f'Queries collected and cached')
         return queries
 

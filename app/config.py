@@ -1,20 +1,20 @@
-import os
+from os import getenv
 from abc import ABC
 from . import load_json_config
 
 class Config(ABC):
-    HOST = os.getenv('HOST_NAME', '127.0.0.1')
-    PORT = os.getenv('PORT', 5000)
-    DEBUG = bool(os.getenv('DEBUG', "True") == "True")
-    ENCODING = os.getenv('ENCODING', 'utf-8')
-    SECRET_KEY = os.getenv('APP_SECRET_KEY', 'cringe')
+    HOST = getenv('HOST_NAME', '127.0.0.1')
+    PORT = getenv('PORT', 5000)
+    DEBUG = bool(getenv('DEBUG', "True") == "True")
+    ENCODING = getenv('ENCODING', 'utf-8')
+    SECRET_KEY = getenv('APP_SECRET_KEY', 'cringe')
     POLICIES = load_json_config('config/policies.json')
     DB = load_json_config('config/db.json')
-    QUERIES  = os.getenv('SQL_QUERY_DIR', 'sql/')
+    QUERIES  = getenv('SQL_QUERY_DIR', 'sql/')
 
 class DevConfig(Config):
 
-    HOST = os.getenv('DEV_HOST_NAME', '127.0.0.1')
-    PORT = os.getenv('DEV_PORT', 5001)
+    HOST = getenv('DEV_HOST_NAME', '127.0.0.1')
+    PORT = getenv('DEV_PORT', 5001)
     SECRET_KEY = 'dev'
     DEBUG = True

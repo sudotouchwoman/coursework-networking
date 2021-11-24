@@ -1,6 +1,7 @@
-import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from os import getenv
+
 from pymysql.err import ProgrammingError, OperationalError
 
 from . import connect
@@ -10,9 +11,9 @@ log = logging.getLogger(__name__)
 # write log to a file with specified filename (provided via environmental variable)
 # set needed level and optionally disable logging completely
 
-DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
-log.disabled = os.getenv('LOG_ON', "True") == "False"
+DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
+LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
+log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 # handler = logging.FileHandler(filename=f'{LOGFILE}', encoding='utf-8')
@@ -35,6 +36,7 @@ class Query():
         self.DB_CONFIG = connection_settings
         return None
 
+
     def execute_raw_query(self, raw:str):
         # execute "raw" query, i.e. without processing it
         # can be dangerous, but generally easier to use
@@ -54,6 +56,7 @@ class Query():
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
             return None
+
 
     def execute_with_args(self, query: str, *args) -> tuple or None:
 

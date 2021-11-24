@@ -1,8 +1,8 @@
 '''
 Business-process for hospital (yet in a single module)
 '''
-import os
 import logging
+from os import getenv
 from logging.handlers import TimedRotatingFileHandler
 
 from flask import current_app
@@ -14,9 +14,9 @@ log = logging.getLogger(__name__)
 # write log to a file with specified filename (provided via environmental variable)
 # set needed level and optionally disable logging completely
 
-DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('APP_LOGFILE_NAME', 'logs/log-hospital-app-state.log')
-log.disabled = os.getenv('LOG_ON', "True") == "False"
+DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
+LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/log-hospital-app-state.log')
+log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
@@ -24,8 +24,8 @@ formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(mes
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
-DB_CONFIG = current_app.config['DB'].get('hospital', None)
-SQL_DIR = current_app.config.get('QUERIES', None)
+DB_CONFIG = current_app.config['DB'].get('hospital')
+SQL_DIR = current_app.config.get('QUERIES')
 
 class HospitalController:
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
@@ -35,6 +35,7 @@ class HospitalController:
             raise TypeError('Failed to create Hospital  controller')
         self.SETTINGS = db_settings
         self.SQL = sql_dir
+
 
     def get_department_list(self) -> None or tuple:
         # candidate for caching
@@ -51,6 +52,7 @@ class HospitalController:
 
         log.debug(msg=f'Fetched department list')
         return process_rows()
+
 
     def get_departments_report(self, department:str) -> None or tuple:
         # assume that department is already sanutized (used with html select tag)
@@ -86,6 +88,7 @@ class HospitalController:
             yield selected[1]
 
         return process_rows()
+
 
     def get_doctors(self) -> None or tuple:
         # also condidate for caching

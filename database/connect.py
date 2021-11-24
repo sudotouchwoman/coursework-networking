@@ -1,17 +1,18 @@
-from pymysql import connect
-from pymysql.err import InterfaceError, OperationalError, Error
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import os
+from os import getenv
+
+from pymysql import connect
+from pymysql.err import InterfaceError, OperationalError, Error
 
 log = logging.getLogger(__name__)
 # enable logging routines
 # write log to a file with specified filename (provided via environmental variable)
 # set needed level and optionally disable logging completely
 
-DEBUGLEVEL = os.getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = os.getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
-log.disabled = os.getenv('LOG_ON', "True") == "False"
+DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
+LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
+log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
 handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
@@ -30,7 +31,7 @@ class Connection:
     DB_CONFIG = None
     CONNECTED = False
 
-    def __init__(self, config:dict) -> None:
+    def __init__(self, config: dict) -> None:
         self.DB_CONFIG = config
         log.debug(msg=f'Initialized config with {config}')
 
@@ -49,12 +50,8 @@ class Connection:
             return self
         except OperationalError as oerr:
             parse_connection_exception(oerr)
-            # return oerr
-            # raise OperationalError('Connection aborted (Operational error)')
         except InterfaceError as ierr:
             log.error(msg=f'Uncatched exception occured: {ierr}')
-            # return ierr
-            # raise InterfaceError('Connection aborted (Interface error)')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
