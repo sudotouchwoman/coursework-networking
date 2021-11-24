@@ -1,10 +1,11 @@
-from flask import Blueprint, request, render_template
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import os
 
-from app.content.hospital import hospital
+from flask import Blueprint, request, render_template
+
 from app.policies import requires_login, requires_permission
+from .hospital import HospitalController
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -34,54 +35,59 @@ def get_hospital_menu():
     log.info(msg=f'Renders hospital menu page')
     return render_template('hospital_routes.j2')
 
+
 @hospital_bp.route('/request/department-stats', methods=['POST'])
 @requires_login
 @requires_permission
 def post_request_department_stats():
     selected_department = request.values.get('department_selection')
     
-    results = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_departments_report(selected_department)
+    results = HospitalController().get_departments_report(selected_department)
     
-    if results[0]: return render_template(
+    if results is None:
+        log.warning(msg=f'Did not render bc results are empty!')
+        return render_template('hospital_empty.j2')
+
+    return render_template(
         'hospital_department_stats_results.j2',
         has_options=True,
         department=selected_department,
-        options=results[1])
+        options=results)
 
-    log.warning(msg=f'Did not render bc results are empty!')
-    return render_template('hospital_empty.j2')
 
 @hospital_bp.route('/request/department-stats', methods=['GET'])
 @requires_login
 @requires_permission
 def get_request_department_stats():
     log.info(msg=f'Renders departments page')
-    departments = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_department_list()
+    departments = HospitalController().get_department_list()
 
-    if departments[0]:
-        return render_template(
-            'hospital_department_stats_selection.j2',
-            has_options=departments[0],
-            departments=departments[1])
+    if departments is None:
+        log.warning(msg=f'Renders empty page as fetched data is empty')
+        return render_template('hospital_empty.j2')
 
-    log.warning(msg=f'Renders empty page as fetched data is empty')
-    return render_template('hospital_empty.j2')
+    return render_template(
+        'hospital_department_stats_selection.j2',
+        has_options=True,
+        departments=departments)
+
 
 @hospital_bp.route('/request/doctor-stats', methods=['GET'])
 @requires_login
 @requires_permission
 def get_request_doctor_stats():
     log.info(msg=f'Renders doctors page')
-    doctors = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_doctors()
+    doctors = HospitalController().get_doctors()
 
-    if doctors[0]:
-        return render_template(
-            'hospital_doctor_stats_selection.j2',
-            has_options=doctors[0],
-            doctors=doctors[1])
+    if doctors is None:    
+        log.warning(msg=f'Renders empty page as fetched data is empty')
+        return render_template('hospital_empty.j2')
     
-    log.warning(msg=f'Renders empty page as fetched data is empty')
-    return render_template('hospital_empty.j2')
+    return render_template(
+        'hospital_doctor_stats_selection.j2',
+        has_options=True,
+        doctors=doctors)
+
 
 @hospital_bp.route('/request/doctor-stats', methods=['POST'])
 @requires_login
@@ -89,13 +95,15 @@ def get_request_doctor_stats():
 def post_request_doctor_stats():
     selected_doctor = request.values.get('doctor_selection')
     
-    results = hospital.GLOBAL_HOSPITAL_CONTROLLER.get_assigned_to_doctor(selected_doctor)
+    results = HospitalController().get_assigned_to_doctor(selected_doctor)
 
-    if results[0]: return render_template(
-        'hospital_doctor_stats_results.j2',
-        has_options=True,
-        doctor=selected_doctor,
-        options=results[1])
+    if results is None: 
+        log.warning(msg=f'Did not render bc results are empty!')
+        return render_template('hospital_empty.j2')
+    
+    return render_template(
+    'hospital_doctor_stats_results.j2',
+    has_options=True,
+    doctor=selected_doctor,
+    options=results)
 
-    log.warning(msg=f'Did not render bc results are empty!')
-    return render_template('hospital_empty.j2')

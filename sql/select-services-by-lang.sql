@@ -1,1 +1,0 @@
-SELECT * FROM services WHERE language LIKE %s

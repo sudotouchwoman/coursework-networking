@@ -23,11 +23,11 @@ def page_not_found_redirect(e):
     return render_template('404.j2')
 
 @app.route('/menu', methods=['GET', 'POST'])
-def get_welcome_page() -> str:
+def welcome_page() -> str:
     return render_template('app_welcome.j2')
 
 @app.route('/exit', methods=['GET', 'POST'])
-def get_exit_page() -> str:
+def exit_page() -> str:
     session.clear()
     return render_template('app_exit.j2')
 
@@ -36,9 +36,3 @@ def get_exit_page() -> str:
 @requires_permission
 def get_hospital_menu():
     return render_template('hospital_menu.j2')
-
-@app.route('/courses', methods=['GET', 'POST'])
-@requires_login
-@requires_permission
-def get_courses_menu():
-    return render_template('courses_menu.j2')

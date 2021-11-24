@@ -1,3 +1,7 @@
+import os
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
 from flask import (
     Blueprint,
     request,
@@ -6,11 +10,7 @@ from flask import (
     redirect,
     render_template)
 
-import logging
-from logging.handlers import TimedRotatingFileHandler
-import os
-
-from .auth import GLOBAL_ROLE_CONTROLLER
+from .auth import PolicyController
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -42,12 +42,15 @@ def login():
     login = request.values.get('login')
     password = request.values.get('password')
 
-    role_name = GLOBAL_ROLE_CONTROLLER.get_group_name(login=login, password=password)
-    if role_name is None:
+    user_data = PolicyController().map_credentials(login=login, password=password)
+    if user_data is None:
         log.info(msg=f'Encountered invalid credentials: {login}, {password}')
         return render_template('login.j2', login_error=True)
 
-    session['group_name'] = role_name
-    log.info(msg=f'{role_name} logged in')
-    return redirect(url_for('get_welcome_page'))
+    session['group_name'] = user_data['group']
+    session['id'] = user_data['id']
+    session['name'] = user_data['name']
+    
+    log.info(msg=f'{user_data["name"]} logged in')
+    return redirect(url_for('welcome_page'))
 

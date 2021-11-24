@@ -1,7 +1,6 @@
 import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-
 from abc import ABC
 from functools import lru_cache
 
@@ -24,7 +23,6 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 
 class ORM(ABC):
-
     @staticmethod
     @lru_cache(maxsize=1)
     def collect_queries(querydir: str) -> dict:
@@ -34,38 +32,38 @@ class ORM(ABC):
         log.info(msg=f'Queries collected and cached')
         return queries
 
+
 class DataSource(ORM):
     def __init__(self, config: dict, sql_dir: str) -> None:
-        log.debug(msg=f'Creates DataSource')
         if config is None: raise ValueError
+        
         try:
             queries = ORM.collect_queries(sql_dir)
         except NotADirectoryError:
             log.error(msg=f'Error occured while collecting queries')
-            raise ValueError
+            raise RuntimeError(f'Failed to collect cached queries from {sql_dir}')
+        
         self.config = config
         self.queries = queries
         log.debug(msg=f'Created DataSource')
+
 
     def fetch_results(self, query: str, *args) -> tuple or None:
         if not query in self.queries: return None
         log.debug(msg=f'Query found, fetches results')
 
-        selector = Query(self.config)
-        fetched = selector\
+        fetched = Query(self.config)\
             .execute_with_args(self.queries[query], *args)
 
-        log.debug(msg=f'Collected this: {fetched}')
         return fetched
 
+
 class DataModifier(DataSource):
-    def update_table(self, query: str, *args) -> True or False:
-        if not query in self.queries: return False
+    def update_table(self, query: str, *args) -> None:
+        if not query in self.queries: return
         log.debug(msg=f'Query to update found, performing')
 
-        actor = Query(self.config)
-        result_status = actor\
+        result_status = Query(self.config)\
             .execute_with_args(self.queries[query], *args)
 
         log.debug(msg=f'Query executed with status {result_status}')
-        return True

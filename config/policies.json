@@ -4,15 +4,8 @@
       "hospital_bp",
       ""
     ],
-    "teacher":[
-      "auth_bp",
-      "courses_bp",
-      ""
-    ],
     "admin": [
       "auth_bp",
-      "home_bp",
-      "courses_bp",
       "hospital_bp",
       ""
     ],

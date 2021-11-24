@@ -4,9 +4,10 @@ Business-process for hospital (yet in a single module)
 import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
+
 from flask import current_app
 
-from app.database.ORM import DataSource
+from database.ORM import DataSource, DataModifier
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -27,7 +28,7 @@ DB_CONFIG = current_app.config['DB'].get('hospital', None)
 SQL_DIR = current_app.config.get('QUERIES', None)
 
 class HospitalController:
-    def __init__(self, db_settings: dict, sql_dir: str) -> None:
+    def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
         if db_settings is None or sql_dir is None:
             log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
             log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
@@ -35,23 +36,23 @@ class HospitalController:
         self.SETTINGS = db_settings
         self.SQL = sql_dir
 
-    def get_department_list(self) -> tuple:
+    def get_department_list(self) -> None or tuple:
         # candidate for caching
         log.debug(msg=f'Fetches department list')
         selected = DataSource(self.SETTINGS, self.SQL).fetch_results('department-list')
 
         if selected is None:
             log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
-            return (False,)
-        
+            return None
+
         def process_rows():
             for row in selected:
                 yield row[0]
 
         log.debug(msg=f'Fetched department list')
-        return (True, process_rows())
+        return process_rows()
 
-    def get_departments_report(self, department:str):
+    def get_departments_report(self, department:str) -> None or tuple:
         # assume that department is already sanutized (used with html select tag)
         # repeated validation might be expensive to perform
         # utilization of cache may be a good idea
@@ -62,20 +63,21 @@ class HospitalController:
 
         if selected is None:
             log.error(msg=f'Failed to create report: is SQL server running? See db logs for more detailed info')
-            return (False,)
+            return None
 
         selected = list(selected)[0]
         
         # I considered it to be a good idea to split one query with two joins into two sequential
         # such request would be performed faster
-        # there are funny moves with fetched data as SelectQuery merely redirects pymysql results, which is formed by a list of tuples
+        # there are funny moves with fetched data as SelectQuery merely redirects pymysql results, 
+        # which is formed by a list of tuples
         # in this particular case we would only return a single row thus I assign selected = selected[0]
         # to avoid messy double indices
         head_name = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctor-initials', selected[0])
 
         if head_name is None:
             log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with id = {selected[0]}')
-            return (False,)
+            return None
 
         head_name = list(head_name)[0]
 
@@ -83,26 +85,26 @@ class HospitalController:
             yield ' '.join(head_name)
             yield selected[1]
 
-        return (True, process_rows())
+        return process_rows()
 
-    def get_doctors(self):
+    def get_doctors(self) -> None or tuple:
         # also condidate for caching
         log.debug(msg=f'Fetches list of doctors')
         selected = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctorlist')
 
         if selected is None:
             log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
-            return (False,)
+            return None
 
         def process_rows():
             for row in selected:
                 yield row[0]
 
         log.debug(msg=f'Fetched list of doctors')
-        return (True, process_rows())
+        return process_rows()
 
 
-    def get_assigned_to_doctor(self, doctor:str):
+    def get_assigned_to_doctor(self, doctor:str) -> None or tuple:
 
         log.debug(msg=f'Collects assignees for {doctor}')
 
@@ -110,23 +112,18 @@ class HospitalController:
 
         if selected is None:
             log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
-            return (False,)
+            return None
 
         handle_null = lambda s: 'No information avaliable' if s == '' or s is None else s
 
         def process_rows():
             for i, row in enumerate(selected):
-                new_row = (
+                yield (
                 i + 1,
                 ' '.join(row[:2]),
                 handle_null(row[2]),
                 handle_null(row[3]),
                 )
-                yield new_row
         
         log.debug(msg=f'Successfully fetched report for given doctor')
-        return (True, process_rows())
-
-
-
-GLOBAL_HOSPITAL_CONTROLLER = HospitalController(DB_CONFIG, SQL_DIR)
+        return process_rows()
