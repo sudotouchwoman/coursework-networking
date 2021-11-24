@@ -1,4 +1,5 @@
 from functools import wraps
+
 from flask import (
     session,
     current_app,
@@ -9,6 +10,7 @@ def authenticated() -> bool:
     group_name = session.get('group_name', '')
     return True if group_name else False
 
+
 def requires_login(func):
 
     @wraps(func)
@@ -17,6 +19,7 @@ def requires_login(func):
     
     return has_group
 
+
 def authorized() -> bool:
     policies = current_app.config['POLICIES']
     group_name = session.get('group_name', 'unauthorized')
@@ -24,6 +27,7 @@ def authorized() -> bool:
     target_service = "" if len(request.endpoint.split('.')) == 1 else request.endpoint.split('.')[0]
 
     return True if group_name in policies and target_service in policies[group_name] else False
+
 
 def requires_permission(func):
 

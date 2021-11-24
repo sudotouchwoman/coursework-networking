@@ -1,8 +1,8 @@
 '''
 Business-process for hospital (yet in a single module)
 '''
-import logging
 from os import getenv
+import logging
 from logging.handlers import TimedRotatingFileHandler
 
 from flask import current_app
@@ -54,8 +54,8 @@ class HospitalController:
         return process_rows()
 
 
-    def get_departments_report(self, department:str) -> None or tuple:
-        # assume that department is already sanutized (used with html select tag)
+    def get_departments_report(self, department: str) -> None or tuple:
+        # assume that department is already sanitized (used with html select tag)
         # repeated validation might be expensive to perform
         # utilization of cache may be a good idea
 

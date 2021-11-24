@@ -1,5 +1,6 @@
 from os import getenv
 from abc import ABC
+
 from . import load_json_config
 
 class Config(ABC):
@@ -11,6 +12,7 @@ class Config(ABC):
     POLICIES = load_json_config('config/policies.json')
     DB = load_json_config('config/db.json')
     QUERIES  = getenv('SQL_QUERY_DIR', 'sql/')
+
 
 class DevConfig(Config):
 
