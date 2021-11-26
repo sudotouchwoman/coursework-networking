@@ -1,4 +1,4 @@
-{% extends 'app_layout.html' %}
+{% extends 'menu.j2' %}
 
 {%block title%}
 Hospital
@@ -14,7 +14,7 @@ Hospital
 <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
 {%endblock%}
 
-{%block body%}
+{%block content%}
 
 <div class="container" id="body">
     <div class="row">
@@ -122,14 +122,6 @@ Hospital
                 <strong>The list is empty!</strong><p>Come back later</p>
             </div>
             {% endif %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6" style="text-align: center;">
-            <a href="{{ url_for('hospital_bp.menu') }}">Go back</a>
-        </div>
-        <div class="col-md-6" style="text-align: center;">
-            <a href="{{ url_for('welcome_page') }}">Go to the main menu</a>
         </div>
     </div>
 </div>

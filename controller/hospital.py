@@ -137,15 +137,15 @@ class HospitalController:
                     'name': ' '.join(row[0:2]),
                     'diagnosis': handle_null(row[2]),
                     'chamber': row[3],
-                    'date_income': (row[4] - datetime.date.today()).days,
+                    'duration': f'{(datetime.date.today() - row[4]).days} days',
                     'date_birth': row[5],
                 }
-        
+
         log.debug(msg=f'Successfully fetched report for given doctor')
         return process_rows()
 
 
-    def get_doctor_name(self, id_doctor) -> str or None:
+    def get_doctor_name(self, id_doctor: int) -> str or None:
         name = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctor-initials', id_doctor)
         if name is None: return
         return ' '.join(name[0])

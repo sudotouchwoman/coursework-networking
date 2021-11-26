@@ -52,5 +52,10 @@ def login():
     session['name'] = user_data['name']
     
     log.info(msg=f'{user_data["name"]} logged in')
-    return redirect(url_for('welcome_page'))
+    return redirect(url_for('menu'))
 
+
+@auth_bp.route('/permission', methods=['GET'])
+def permission():
+    log.warning(msg=f'Permission denied for user with id {session.get("id", "(unspecified id)")}')
+    return render_template('permission.j2')

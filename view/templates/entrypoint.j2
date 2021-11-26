@@ -1,0 +1,21 @@
+{% extends "menu.j2" %}
+
+{% block title %}
+Main menu
+{% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-success">
+            {% if 'group_name' in session %}
+            <h1>Welcome back, {{ session['name'] }}!</h1>
+            <h2>You are currently logged in as {{ session['group_name'] }}</h2>
+            {% else %}
+            <h1>Dear guest, you did not introduce yourself</h1>
+            <h2>Sign in using your account at the login page</h2>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

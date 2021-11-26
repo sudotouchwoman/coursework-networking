@@ -22,17 +22,13 @@ app = Flask(
 def page_not_found_redirect(e):
     return render_template('404.j2')
 
-@app.route('/menu', methods=['GET', 'POST'])
-def welcome_page() -> str:
-    return render_template('app_welcome.j2')
-
-@app.route('/exit', methods=['GET', 'POST'])
+@app.route('/exit', methods=['GET'])
 def exit_page() -> str:
     session.clear()
-    return render_template('app_exit.j2')
+    return render_template('exit.j2')
 
-@app.route('/hospital', methods=['GET', 'POST'])
+@app.route('/menu', methods=['GET'])
 @requires_login
 @requires_permission
 def menu():
-    return render_template('hospital_menu.j2')
+    return render_template('entrypoint.j2')

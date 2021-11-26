@@ -1,18 +1,24 @@
-{% extends "app_layout.html" %}
+{% extends 'menu.j2' %}
+
 {% block title %}
 Department info
 {% endblock title %}
+
 {% block styles %}
     {{ super() }}
         <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
         <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
 {% endblock styles %}
+
 {% block icon %}
         <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
 {% endblock icon %}
-{% block body %}
-<div class="container flex-container">
-    <h1>Department page</h1>
+
+{% block content %}
+<div class="container">
+    <div class="col-md-12">
+        <h1>Department page</h1>
+    </div>
     {% if departments %}
     <div class="row">
         <div class="col-md-2">
@@ -50,7 +56,7 @@ Department info
     {% endif %}
     {% if report %}
         <div class="row">
-            <div class="col-md-12" style="background-color: whitesmoke;">
+            <div class="col-md-12">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -74,16 +80,5 @@ Department info
             </div>
         </div>
     {% endif %}
-    <div class="row">
-        <div class="col-md-4">
-            <a href="{{ url_for('patients_bp.list_patients') }}">Patients page</a>
-        </div>
-        <div class="col-md-4">
-            <p style="text-align: center;">Return to <a href="{{ url_for('menu') }}">main page</a></p>
-        </div>
-        <div class="col-md-4">
-            <a href="{{ url_for('hospital_bp.get_request_doctor_stats') }}">Assignation list</a>
-        </div>
-    </div>
 </div>
-{% endblock body %}
+{% endblock content %}

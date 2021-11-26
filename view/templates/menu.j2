@@ -1,0 +1,60 @@
+{% extends 'base.j2' %}
+
+{% macro navlink(endpoint, text) %}
+{% if request.endpoint.endswith(endpoint) %}
+<th style="text-align: center; background-color: gainsboro;">
+    <a href="{{ url_for(endpoint) }}">{{ text }}</a>
+</th>
+{% else %}
+<th style="text-align: center;">
+    <a href="{{ url_for(endpoint) }}">{{ text }}</a>
+</th>
+{% endif %}
+{% endmacro %}
+
+{% macro loginshield() %}
+{% if 'id' in session %}
+
+<th style="text-align: center;">
+    <th><strong>✔️</strong> {{ session.name }}</th>
+    {{ navlink('exit_page', 'Log out') }}
+</th>
+{% else %}
+    <th style="font-size: larger;">⚠️</th>
+    {{ navlink('auth_bp.login', 'Login?') }}
+{% endif %}
+{% endmacro %}
+
+{%block title%}
+Hospital menu
+{%endblock%}
+
+{%block styles%}
+    {{ super() }}
+    <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
+{%endblock%}
+
+{%block icon%}
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/icon.png') }}">
+{%endblock%}
+
+{%block body%}
+<div class="container">
+    <div class="row">
+            <table class="table" style="margin-bottom: 30px;">
+                <thead>
+                    <tr>
+                        {{ navlink('hospital_bp.department_report', 'Department') }}
+                        {{ navlink('hospital_bp.assignment_list', 'Assignment list') }}
+                        {{ navlink('hospital_bp.list_appointments', 'Appointments') }}
+                        {{ navlink('patients_bp.list_patients', 'List patients') }}
+                        {{ loginshield() }}
+                    </tr>
+                </thead>
+            </table>                
+    </div>
+</div>
+    {% block content %}
+    {% endblock %}
+{%endblock%}

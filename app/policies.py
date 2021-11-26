@@ -4,7 +4,8 @@ from flask import (
     session,
     current_app,
     request,
-    render_template)
+    redirect,
+    url_for)
 
 def authenticated() -> bool:
     group_name = session.get('group_name', '')
@@ -15,7 +16,7 @@ def requires_login(func):
 
     @wraps(func)
     def has_group(*args, **kwargs):
-        return func(*args, **kwargs) if authenticated() else render_template('login.j2')
+        return func(*args, **kwargs) if authenticated() else redirect(url_for('auth_bp.login'))
     
     return has_group
 
@@ -33,6 +34,6 @@ def requires_permission(func):
 
     @wraps(func)
     def has_permission(*args, **kwargs):
-        return func(*args, **kwargs) if authorized() else render_template('permission.j2')
+        return func(*args, **kwargs) if authorized() else redirect(url_for('auth_bp.permission'))
     
     return has_permission

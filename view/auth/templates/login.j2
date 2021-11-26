@@ -1,11 +1,14 @@
-{% extends "app_layout.html" %}
+{% extends "menu.j2" %}
+
 {% block title %}
 Login
 {% endblock %}
+
 {%block icon%}
 <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/login.png') }}">
 {%endblock%}
-{% block body %}
+
+{% block content %}
 <div class="container">
     <div class="row">
         {% if login_error %}
@@ -26,4 +29,4 @@ Login
         </div>
     </div>
 </div>
-{% endblock body %}
+{% endblock content %}

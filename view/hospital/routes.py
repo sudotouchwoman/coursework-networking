@@ -42,14 +42,13 @@ hospital_bp = Blueprint(
 @requires_permission
 def menu():
     log.info(msg=f'Renders hospital menu page')
-    return render_template('hospital_routes.j2')
+    return render_template('menu.j2')
 
 
 @hospital_bp.route('/request/doctor-stats', methods=['GET', 'POST'])
 @requires_login
 @requires_permission
 def assignment_list():
-
     if request.method == 'GET':
         log.info(msg=f'Renders assignation list for {session["name"]}')
         assigned = HospitalController().get_assigned_to_doctor(session['id'])
@@ -101,7 +100,6 @@ def department_report():
         log.error(msg=f'Failed to collect request data\
             expected title and id, found: {department_data}')
         return redirect(url_for('page_not_found_redirect'))
-
 
     report = HospitalController().make_department_report(d_id, d_title)
     return render_template('hospital_department.j2', departments=departments, report=report)

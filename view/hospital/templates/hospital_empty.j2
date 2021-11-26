@@ -1,19 +1,25 @@
-{% extends "app_layout.html" %}
+{% extends "menu.j2" %}
+
 {% block title %}
 Server error
 {% endblock title %}
+
 {% block styles %}
         <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
         <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
 {% endblock styles %}
+
 {% block icon %}
         <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
 {% endblock icon %}
-{% block body %}
-<div class="flex-container">
-    <p>Looks like there was an error on server! Refresh page or come back later...</p>
-    <div class="footer">
-        <p>Return to <a href="{{ url_for('menu') }}">main page</a></p>
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="alert alert-danger">
+            <p>Looks like there was an error on server! Refresh page or come back later...</p>
+            <p>Return to <a href="{{ url_for('menu') }}">main page</a></p>
+        </div>
     </div>
 </div>
-{% endblock body %}
+{% endblock content %}

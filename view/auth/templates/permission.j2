@@ -1,17 +1,20 @@
-{% extends "app_layout.html" %}
+{% extends "menu.j2" %}
+
 {% block title %}
 Permission denied
 {% endblock %}
+
 {%block icon%}
 <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/login.png') }}">
 {%endblock%}
-{% block body %}
+
+{% block content %}
 
 <div class="container">
     <div class="alert alert-danger">
-        <h2>You do not have rights to see contents of this page</h2>
-        <p>Click <a href="{{ url_for('auth_bp.login') }}">here</a> to warp to the login page or <a href="{{ url_for('welcome_page') }}" class="link">go to main menu</a></p>
+        <h1>You do not have rights to see contents of this page</h1>
+        <h2>Click <a href="{{ url_for('auth_bp.login') }}">here</a> to warp to the login page</a></h2>
     </div>
 </div>
 
-{% endblock body %}
+{% endblock content %}
