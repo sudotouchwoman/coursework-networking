@@ -1,0 +1,137 @@
+{% extends 'app_layout.html' %}
+
+{%block title%}
+Hospital
+{%endblock%}
+
+{%block styles%}
+    {{ super() }}
+    <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
+{%endblock%}
+
+{%block icon%}
+<link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
+{%endblock%}
+
+{%block body%}
+
+<div class="container" id="body">
+    <div class="row">
+        <div class="col-md 12">
+            <h1>All appointments for {{ session['name'] }}</h1>
+            {% if appointments %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;">&#8470;</th>
+                        <th style="text-align: center;">ID</th>
+                        <th style="text-align: center;">Date and Time</th>
+                        <th style="text-align: center;">Patient</th>
+                        <th style="text-align: center;">Description</th>
+                        <th style="text-align: center;">Status</th>
+                        <th style="text-align: right;">Actions</th>
+                        <th style="text-align: center;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for todo in appointments %}
+                {% if todo['status_code'] == 0 %}
+                    <tr class="alert alert-danger">
+                        <td>{{todo['num']}}</td>
+                        <td>{{todo['id']}}</td>
+                        <td>{{todo['scheduled']}}</td>
+                        <td>{{todo['patient']}}</td>
+                        <td>{{todo['about']}}</td>
+                        <td>{{todo['status']}}</td>
+                        <td>
+                            <form action="" method="post" style="text-align: justify">
+                                <input type="hidden" name="appointment_id" value="{{todo['id']}}">
+                                <input type="hidden" name="action" value="accept">
+                                <input type="submit" value="Accept">
+                            </form>
+                        </td>
+                        <td>
+                            <form action="" method="post" style="text-align: justify">
+                                <input type="hidden" name="appointment_id" value="{{todo['id']}}">
+                                <input type="hidden" name="action" value="reject">
+                                <input type="submit" value="Reject">
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if todo['status_code'] == 1 %}
+                    <tr class="alert alert-warning">
+                        <td>{{todo['num']}}</td>
+                        <td>{{todo['id']}}</td>
+                        <td>{{todo['scheduled']}}</td>
+                        <td>{{todo['patient']}}</td>
+                        <td>{{todo['about']}}</td>
+                        <td>{{todo['status']}}</td>
+                        <td>
+                            <form action="" method="post" style="text-align: justify">
+                                <input type="hidden" name="appointment_id" value="{{todo['id']}}">
+                                <input type="hidden" name="action" value="complete">
+                                <input type="submit" value="Mark done">
+                            </form>
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                {% if todo['status_code'] == 2 %}
+                    <tr class="">
+                        <td>{{todo['num']}}</td>
+                        <td>{{todo['id']}}</td>
+                        <td>{{todo['scheduled']}}</td>
+                        <td>{{todo['patient']}}</td>
+                        <td>{{todo['about']}}</td>
+                        <td>{{todo['status']}}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                {% if todo['status_code'] == 3 %}
+                    <tr class="alert alert-success">
+                        <td>{{todo['num']}}</td>
+                        <td>{{todo['id']}}</td>
+                        <td>{{todo['scheduled']}}</td>
+                        <td>{{todo['patient']}}</td>
+                        <td>{{todo['about']}}</td>
+                        <td>{{todo['status']}}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                {% if todo['status_code'] not in range(4) %}
+                    <tr class="alert alert-danger">
+                        <td>{{todo['num']}}</td>
+                        <td>{{todo['id']}}</td>
+                        <td>{{todo['scheduled']}}</td>
+                        <td>{{todo['patient']}}</td>
+                        <td>{{todo['about']}}</td>
+                        <td>{{todo['status']}}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-info">
+                <strong>The list is empty!</strong><p>Come back later</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6" style="text-align: center;">
+            <a href="{{ url_for('hospital_bp.get_hospital_menu') }}">Go back</a>
+        </div>
+        <div class="col-md-6" style="text-align: center;">
+            <a href="{{ url_for('welcome_page') }}">Go to the main menu</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

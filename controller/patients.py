@@ -1,7 +1,6 @@
 '''
 Business-process related to patients: add new patient, assign to doctor etc
 '''
-from abc import ABC
 from os import getenv
 import logging
 from logging.handlers import TimedRotatingFileHandler
@@ -11,7 +10,7 @@ from flask import current_app
 from schema import *
 
 from database.ORM import DataSource, DataModifier
-from . import validate_object
+from . import Validator
 
 log = logging.getLogger(__name__)
 # enable logging routines
@@ -31,24 +30,6 @@ log.addHandler(handler)
 DB_CONFIG = current_app.config['DB'].get('hospital')
 SQL_DIR = current_app.config.get('QUERIES')
 
-class PatientValidator(ABC):
-
-    PATIENT_INSERT_TEMPLATE = {
-                'first_name': And(str, lambda s: s.isalpha()),
-                'second_name': And(str, lambda s: s.isalpha()),
-                'passport': And(str, lambda s: not s or s.isdigit()),
-                'city': And(str, lambda s: s.isalpha()),
-                'date_birth': And(str, lambda d: datetime.date(*map(int, d.split('-'))) < datetime.date.today()),
-                'chamber': And(str, lambda s: s.isdigit()),
-                'attending_doctor': str,
-            }
-
-    @staticmethod
-    def validate_patient_data(patient_data) -> bool:
-        return validate_object(patient_data, PatientValidator.PATIENT_INSERT_TEMPLATE)
-
-
-
 class PatientController:
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
         if db_settings is None or sql_dir is None:
@@ -64,11 +45,11 @@ class PatientController:
             log.error(f'Patient creation aborted, the data is missing')
             return
 
-        if not PatientValidator.validate_patient_data(patient_data): 
+        if not Validator.validate_patient_data(patient_data): 
             log.error(msg=f'Validation failed')
             return
 
-        DataModifier(self.SETTINGS, self.SQL).update_table('occupy-chamber', patient_data['chamber'])
+        DataModifier(self.SETTINGS, self.SQL).update_table('update-chamber', patient_data['chamber'])
 
         patient_data = (
             patient_data['passport'], datetime.date.today().isoformat(),
@@ -87,7 +68,7 @@ class PatientController:
 
         if patients is None:
             log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
-            return None
+            return
 
         handle_null = lambda s: 'N/A' if s is None or not s else s
         discharged = lambda s: s is None
@@ -126,3 +107,18 @@ class PatientController:
         today = datetime.date.today().isoformat()
         DataModifier(self.SETTINGS, self.SQL).update_table('discharge-patient', today, patient_id)
 
+    def create_appointment_record(self, appointment_data: dict) -> None:
+        if appointment_data is None:
+            log.error(f'Task creation aborted, the data is missing')
+            return
+
+        if not Validator.validate_appointment_data(appointment_data): 
+            log.error(msg=f'Validation failed')
+            return
+
+        appointment_data = (
+            appointment_data['asignee'], appointment_data['patient'],
+            appointment_data.get('scheduled'), appointment_data.get('about')
+        )
+
+        DataModifier(self.SETTINGS, self.SQL).update_table('create-appointment-record', *appointment_data)

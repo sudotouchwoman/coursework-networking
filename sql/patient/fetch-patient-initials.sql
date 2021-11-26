@@ -1,0 +1,1 @@
+SELECT * FROM patient WHERE id_patient = %s

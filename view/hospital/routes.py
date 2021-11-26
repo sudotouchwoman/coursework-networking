@@ -1,8 +1,16 @@
 from os import getenv
+from json import loads
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-from flask import Blueprint, request, render_template
+from flask import (
+    Blueprint,
+    request,
+    render_template,
+    session
+)
+from flask.helpers import url_for
+from werkzeug.utils import redirect
 
 from app.policies import requires_login, requires_permission
 from controller.hospital import HospitalController
@@ -93,10 +101,12 @@ def get_request_doctor_stats():
 @requires_login
 @requires_permission
 def post_request_doctor_stats():
-    selected_doctor = request.values.get('doctor_selection')
-    
-    results = HospitalController().get_assigned_to_doctor(selected_doctor)
+    selected_doctor = (request.values.get('doctor_selection'))
+    selected_doctor = loads(selected_doctor)
+    id = selected_doctor.get('id')
+    name = selected_doctor.get('name')
 
+    results = HospitalController().get_assigned_to_doctor(id)
     if results is None: 
         log.warning(msg=f'Did not render bc results are empty!')
         return render_template('hospital_empty.j2')
@@ -104,6 +114,28 @@ def post_request_doctor_stats():
     return render_template(
     'hospital_doctor_stats_results.j2',
     has_options=True,
-    doctor=selected_doctor,
+    doctor=name,
     options=results)
 
+
+@hospital_bp.route('/appointments', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
+def list_appointments():
+    if request.method == 'GET':
+        doctor_id = session['id']
+        appointments = HospitalController().filter_appointments(by='doctor', value=doctor_id)
+
+        if appointments is None: return render_template('appointment_list.j2')
+
+        return render_template(
+            'appointment_list.j2',
+            appointments=appointments
+        )
+
+    if 'action' not in request.values.keys(): return render_template('hospital_empty.j2')
+    if 'appointment_id' not in request.values.keys(): return render_template('hospital_empty.j2')
+
+    HospitalController().update_appointment(request.values['action'], request.values['appointment_id'])
+    return redirect(url_for('hospital_bp.list_appointments'))
+        

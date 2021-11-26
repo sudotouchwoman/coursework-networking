@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
-from os import getenv, listdir
+from os import getenv, walk
 from os.path import isdir
 from abc import ABC
 from functools import lru_cache
@@ -29,7 +29,9 @@ class ORM(ABC):
     def collect_queries(querydir: str) -> dict:
         log.info(msg=f'Collects queries from the provided path')
         if not isdir(querydir): raise NotADirectoryError
-        queries = { file.split('.')[0] : open(querydir+file, mode='r').read() for file in listdir(querydir) }
+        queries = {
+            file.replace('/','.').split('.')[-2] : open(f'{dir}/{file}', mode='r').read()
+            for dir, _, files in walk(querydir) for file in files }
         log.info(msg=f'Queries collected and cached')
         return queries
 
@@ -50,7 +52,8 @@ class DataSource(ORM):
 
 
     def fetch_results(self, query: str, *args) -> tuple or None:
-        if not query in self.queries: return None
+        log.debug(msg=f'Quey is {query}')
+        if not query in self.queries: return
         log.debug(msg=f'Query found, fetches results')
 
         fetched = Query(self.config)\

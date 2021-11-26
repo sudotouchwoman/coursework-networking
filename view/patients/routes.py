@@ -71,7 +71,7 @@ def list_patients():
             return render_template('hospital_empty.j2')
 
         return render_template(
-            'patient_list.html',
+            'patient_list.j2',
             doctors=doctors,
             patients=patients,
             chambers_full=(chamber is None),

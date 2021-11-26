@@ -34,7 +34,7 @@ class Query():
 
     def __init__(self, connection_settings:dict):
         self.DB_CONFIG = connection_settings
-        return None
+        return
 
 
     def execute_raw_query(self, raw:str):
@@ -47,7 +47,7 @@ class Query():
         log.debug(msg=f'Query is: {raw}')
         try:
             with connect.Connection(self.DB_CONFIG) as conn:
-                if not conn.CONNECTED: return None
+                if not conn.CONNECTED: return
                 conn.CURSOR.execute(query=raw)
                 fetched = [row for row in conn.CURSOR.fetchall()]
                 log.debug(msg=f'Fetched {len(fetched)} rows')
@@ -55,7 +55,7 @@ class Query():
                 return fetched
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
-            return None
+            return
 
 
     def execute_with_args(self, query: str, *args) -> tuple or None:
@@ -65,7 +65,7 @@ class Query():
 
         try:
             with connect.Connection(self.DB_CONFIG) as conn:
-                if not conn.CONNECTED: return None
+                if not conn.CONNECTED: return
                 conn.CURSOR.execute(query, args)
                 fetched = ( row for row in conn.CURSOR.fetchall() )
                 log.debug(msg=f'Affected {conn.CURSOR.rowcount} rows')
@@ -73,6 +73,6 @@ class Query():
                 return fetched
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
-            return None
+            return
             
         
