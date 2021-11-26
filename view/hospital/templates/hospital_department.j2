@@ -21,7 +21,7 @@ Department info
     </div>
     {% if departments %}
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-3">
             <form action="" method="post" class="form-horizontal">
                 <div class="form-group">
                     <select class="form-control" name="selected_department" style="text-align: center;">
@@ -41,9 +41,9 @@ Department info
                 </div>
             </form>
         </div>
-        <div class="col-md-10" style="text-align: left;">
+        <div class="col-md-9" style="text-align: left;">
         {% if report %}
-            <p style="text-align: left;"><strong>{{ report['title'] }}. Head doctor: </strong>{{ report['head'] }}</p>
+            <h2 style="text-align: left;"><strong>{{ report['title'] }}. Head doctor: </strong>{{ report['head'] }}</h2>
         {% else %}
             <p>Department head and chamber capacity. Please, select one in the dropdown menu</p>
         {% endif %}

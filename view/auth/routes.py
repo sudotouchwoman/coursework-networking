@@ -36,7 +36,7 @@ auth_bp = Blueprint(
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        log.debug(msg=f'Redirects to login page')
+        log.info(msg=f'Redirects to login page')
         return render_template('login.j2')
 
     login = request.values.get('login')
@@ -44,7 +44,7 @@ def login():
 
     user_data = PolicyController().map_credentials(login=login, password=password)
     if user_data is None:
-        log.info(msg=f'Encountered invalid credentials: {login}, {password}')
+        log.warning(msg=f'Encountered invalid credentials: {login}, {password}')
         return render_template('login.j2', login_error=True)
 
     session['group_name'] = user_data['group']

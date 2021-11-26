@@ -13,9 +13,11 @@ Login
     <div class="row">
         {% if login_error %}
         <div class="alert alert-danger">
+            <p style="font-size: 100px;">⚠️</p>
             <h2 style="text-align: center;">Invalid credentials, please try again!</h2>
         {% else %}
         <div class="alert alert-warning">
+            <p style="font-size: 100px;">🔑🔒</p>
             <h2 style="text-align: center;">Please enter your credentials!</h2>
         {% endif %}
             <form class="form" action="{{ url_for('auth_bp.login') }}" method="post">

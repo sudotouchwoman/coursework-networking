@@ -45,7 +45,7 @@ def menu():
     return render_template('menu.j2')
 
 
-@hospital_bp.route('/request/doctor-stats', methods=['GET', 'POST'])
+@hospital_bp.route('/assigned-patients', methods=['GET', 'POST'])
 @requires_login
 @requires_permission
 def assignment_list():
