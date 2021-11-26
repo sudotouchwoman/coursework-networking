@@ -1,0 +1,89 @@
+{% extends "app_layout.html" %}
+{% block title %}
+Department info
+{% endblock title %}
+{% block styles %}
+    {{ super() }}
+        <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
+        <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
+{% endblock styles %}
+{% block icon %}
+        <link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
+{% endblock icon %}
+{% block body %}
+<div class="container flex-container">
+    <h1>Department page</h1>
+    {% if departments %}
+    <div class="row">
+        <div class="col-md-2">
+            <form action="" method="post" class="form-horizontal">
+                <div class="form-group">
+                    <select class="form-control" name="selected_department" style="text-align: center;">
+                {% for department in departments %}
+                {% if report and department['title'] == report['title']%}
+                <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}' 
+                    class="form-control" selected="selected">{{ department['title'] }}</option>
+                {% else %}
+                <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}'
+                    class="form-control">{{ department['title'] }}</option>
+                {% endif %}
+                {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="form-control" placeholder="Select">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-10" style="text-align: left;">
+        {% if report %}
+            <p style="text-align: left;"><strong>{{ report['title'] }}. Head doctor: </strong>{{ report['head'] }}</p>
+        {% else %}
+            <p>Department head and chamber capacity. Please, select one in the dropdown menu</p>
+        {% endif %}
+        </div>
+    </div>
+    {% else %}
+        <div class="alert alert-danger">
+            <strong>Looks like there was an error on server!</strong><p>Refresh page or come back later...</p>
+        </div>
+    {% endif %}
+    {% if report %}
+        <div class="row">
+            <div class="col-md-12" style="background-color: whitesmoke;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td style="text-align: center;">&#8470;</td>
+                            <td style="text-align: center;">Chamber class</td>
+                            <td style="text-align: center;">Total space in chambers</td>
+                            <td style="text-align: center;">Occupied space</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for record in report['chambers'] %}
+                        <tr>
+                            <td>{{ record['num'] }}</td>
+                            <td>{{ record['class'] }}</td>
+                            <td>{{ record['capacity'] }}</td>
+                            <td>{{ record['occupied'] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-md-4">
+            <a href="{{ url_for('patients_bp.list_patients') }}">Patients page</a>
+        </div>
+        <div class="col-md-4">
+            <p style="text-align: center;">Return to <a href="{{ url_for('menu') }}">main page</a></p>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ url_for('hospital_bp.get_request_doctor_stats') }}">Assignation list</a>
+        </div>
+    </div>
+</div>
+{% endblock body %}

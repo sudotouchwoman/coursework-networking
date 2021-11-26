@@ -10,7 +10,7 @@ Main menu
             <h2>Welcome back, {{ session['name'] }}! You are currently logged in as {{ session['group_name'] }}</h2>
             <ul id="request-links">
                 <li>
-                    <p>Click <a href="{{ url_for('get_hospital_menu') }}">here</a> to go to hospital menu</p>
+                    <p>Click <a href="{{ url_for('menu') }}">here</a> to go to hospital menu</p>
                 </li>
             </ul>
             <div class="flex-conainter">

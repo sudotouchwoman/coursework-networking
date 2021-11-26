@@ -34,5 +34,5 @@ def exit_page() -> str:
 @app.route('/hospital', methods=['GET', 'POST'])
 @requires_login
 @requires_permission
-def get_hospital_menu():
+def menu():
     return render_template('hospital_menu.j2')

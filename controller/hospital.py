@@ -1,7 +1,8 @@
 '''
 Business-process for hospital (yet in a single module)
 '''
-from os import getenv, name
+from os import getenv
+import datetime
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -48,46 +49,54 @@ class HospitalController:
 
         def process_rows():
             for row in selected:
-                yield row[0]
+                yield {
+                    'id': row[0],
+                    'title': row[1]
+                }
 
         log.debug(msg=f'Fetched department list')
         return process_rows()
 
 
-    def get_departments_report(self, department: str) -> None or tuple:
-        # assume that department is already sanitized (used with html select tag)
-        # repeated validation might be expensive to perform
-        # utilization of cache may be a good idea
+    def make_department_report(self, department_id: int, department_name: str = 'N/A') -> None or tuple:
+        log.debug(msg=f'Produces report for selected department {department_id}')
+        
+        collected = DataSource(self.SETTINGS, self.SQL)\
+            .fetch_results('department-report', department_id)
 
-        log.debug(msg=f'Produces report for selected department {department}')
-
-        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('department-report', department)
-
-        if selected is None:
+        if collected is None:
             log.error(msg=f'Failed to create report: is SQL server running? See db logs for more detailed info')
             return
-
-        selected = list(selected)[0]
         
-        # I considered it to be a good idea to split one query with two joins into two sequential
-        # such request would be performed faster
-        # there are funny moves with fetched data as SelectQuery merely redirects pymysql results, 
-        # which is formed by a list of tuples
-        # in this particular case we would only return a single row thus I assign selected = selected[0]
-        # to avoid messy double indices
-        head_name = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctor-initials', selected[0])
-
-        if head_name is None:
-            log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with id = {selected[0]}')
-            return
-
-        head_name = list(head_name)[0]
+        department_head = DataSource(self.SETTINGS, self.SQL)\
+            .fetch_results('department-head', department_id)
+        
+        try:
+            department_head = list(department_head)[0]
+        except (TypeError, IndexError):
+            log.error(msg=f'Error occured while obtaining\
+                initials of department head. Make sure the query is OK')
+            department_head = 'N/A'
 
         def process_rows():
-            yield ' '.join(head_name)
-            yield selected[1]
-
-        return process_rows()
+            for i, row in enumerate(collected, start=1):
+                try:
+                    yield {
+                        'num': i,
+                        'class': row[0],
+                        'capacity': row[1],
+                        'occupied': row[2],
+                    }
+                except IndexError:
+                    log.warning(msg=f'Index error while making department report\
+                        make sure the SQL query is correct')
+                    continue
+        
+        return {
+            'title': department_name,
+            'head': ' '.join(department_head),
+            'chambers': process_rows()
+        }
 
 
     def get_doctors(self) -> None or tuple:
@@ -113,23 +122,24 @@ class HospitalController:
     def get_assigned_to_doctor(self, doctor) -> None or tuple:
 
         log.debug(msg=f'Collects assignees for {doctor}')
-
         selected = DataSource(self.SETTINGS, self.SQL).fetch_results('fetch-patients-filterby-doctor', doctor)
 
         if selected is None:
             log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
             return
 
-        handle_null = lambda s: 'N/A' if s is None or not s else s
+        handle_null = lambda s: 'Not specified' if s is None or not s else s
 
         def process_rows():
-            for i, row in enumerate(selected):
-                yield (
-                i + 1,
-                ' '.join(row[:2]),
-                handle_null(row[2]),
-                handle_null(row[3]),
-                )
+            for i, row in enumerate(selected, start=1):
+                yield {
+                    'num': i,
+                    'name': ' '.join(row[0:2]),
+                    'diagnosis': handle_null(row[2]),
+                    'chamber': row[3],
+                    'date_income': (row[4] - datetime.date.today()).days,
+                    'date_birth': row[5],
+                }
         
         log.debug(msg=f'Successfully fetched report for given doctor')
         return process_rows()
@@ -139,6 +149,7 @@ class HospitalController:
         name = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctor-initials', id_doctor)
         if name is None: return
         return ' '.join(name[0])
+
 
     def check_chambers_capacity(self) -> int or None:
         log.debug(msg=f'Checks capacity of chambers')
@@ -185,7 +196,7 @@ class HospitalController:
 
 
         def process_rows():
-            for i, row in enumerate(filtered):
+            for i, row in enumerate(filtered, start=1):
                 try:
                     initials = DataSource(self.SETTINGS, self.SQL)\
                         .fetch_results('fetch-patient-initials', row[2])

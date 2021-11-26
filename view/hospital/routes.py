@@ -1,5 +1,6 @@
 from os import getenv
 from json import loads
+from json.decoder import JSONDecodeError
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -39,83 +40,22 @@ hospital_bp = Blueprint(
 @hospital_bp.route('menu', methods=['GET'])
 @requires_login
 @requires_permission
-def get_hospital_menu():
+def menu():
     log.info(msg=f'Renders hospital menu page')
     return render_template('hospital_routes.j2')
 
 
-@hospital_bp.route('/request/department-stats', methods=['POST'])
+@hospital_bp.route('/request/doctor-stats', methods=['GET', 'POST'])
 @requires_login
 @requires_permission
-def post_request_department_stats():
-    selected_department = request.values.get('department_selection')
-    
-    results = HospitalController().get_departments_report(selected_department)
-    
-    if results is None:
-        log.warning(msg=f'Did not render bc results are empty!')
-        return render_template('hospital_empty.j2')
+def assignment_list():
 
-    return render_template(
-        'hospital_department_stats_results.j2',
-        has_options=True,
-        department=selected_department,
-        options=results)
+    if request.method == 'GET':
+        log.info(msg=f'Renders assignation list for {session["name"]}')
+        assigned = HospitalController().get_assigned_to_doctor(session['id'])
+        return render_template('hospital_doctor.j2', assigned=assigned)
 
-
-@hospital_bp.route('/request/department-stats', methods=['GET'])
-@requires_login
-@requires_permission
-def get_request_department_stats():
-    log.info(msg=f'Renders departments page')
-    departments = HospitalController().get_department_list()
-
-    if departments is None:
-        log.warning(msg=f'Renders empty page as fetched data is empty')
-        return render_template('hospital_empty.j2')
-
-    return render_template(
-        'hospital_department_stats_selection.j2',
-        has_options=True,
-        departments=departments)
-
-
-@hospital_bp.route('/request/doctor-stats', methods=['GET'])
-@requires_login
-@requires_permission
-def get_request_doctor_stats():
-    log.info(msg=f'Renders doctors page')
-    doctors = HospitalController().get_doctors()
-
-    if doctors is None:    
-        log.warning(msg=f'Renders empty page as fetched data is empty')
-        return render_template('hospital_empty.j2')
-    
-    return render_template(
-        'hospital_doctor_stats_selection.j2',
-        has_options=True,
-        doctors=doctors)
-
-
-@hospital_bp.route('/request/doctor-stats', methods=['POST'])
-@requires_login
-@requires_permission
-def post_request_doctor_stats():
-    selected_doctor = (request.values.get('doctor_selection'))
-    selected_doctor = loads(selected_doctor)
-    id = selected_doctor.get('id')
-    name = selected_doctor.get('name')
-
-    results = HospitalController().get_assigned_to_doctor(id)
-    if results is None: 
-        log.warning(msg=f'Did not render bc results are empty!')
-        return render_template('hospital_empty.j2')
-    
-    return render_template(
-    'hospital_doctor_stats_results.j2',
-    has_options=True,
-    doctor=name,
-    options=results)
+    return redirect(url_for('hospital_bp.assignment_list'))
 
 
 @hospital_bp.route('/appointments', methods=['GET', 'POST'])
@@ -133,9 +73,36 @@ def list_appointments():
             appointments=appointments
         )
 
-    if 'action' not in request.values.keys(): return render_template('hospital_empty.j2')
-    if 'appointment_id' not in request.values.keys(): return render_template('hospital_empty.j2')
+    if 'action' not in request.values.keys(): return redirect(url_for('page_not_found_redirect'))
+    if 'appointment_id' not in request.values.keys(): return redirect(url_for('page_not_found_redirect'))
 
     HospitalController().update_appointment(request.values['action'], request.values['appointment_id'])
     return redirect(url_for('hospital_bp.list_appointments'))
-        
+
+
+@hospital_bp.route('/department', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
+def department_report():
+    departments = HospitalController().get_department_list()
+    
+    if request.method == 'GET':
+        # render as default
+        return render_template('hospital_department.j2', departments=departments)
+
+    department_data = request.values.get('selected_department')
+    try:
+        # try to decode option from the request
+        # redirect to 404 handler if something goes wrong
+        department_data = loads(department_data)
+        d_id = department_data['id']
+        d_title = department_data['title']
+    except (JSONDecodeError, KeyError):
+        log.error(msg=f'Failed to collect request data\
+            expected title and id, found: {department_data}')
+        return redirect(url_for('page_not_found_redirect'))
+
+
+    report = HospitalController().make_department_report(d_id, d_title)
+    return render_template('hospital_department.j2', departments=departments, report=report)
+

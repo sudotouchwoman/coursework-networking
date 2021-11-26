@@ -1,6 +1,8 @@
-SELECT department.department_head as 'Head', 
-SUM(chamber.totalspace) as 'Total space' 
-from department JOIN chamber ON chamber.department = id_department
+SELECT
+    chamber.class,
+    SUM(chamber.totalspace),
+    SUM(chamber.occupied)
+from chamber JOIN department ON chamber.department = department.id_department
 WHERE 1
-    AND department.department_name like %s
-GROUP BY id_department;
+    AND department.id_department = %s
+GROUP BY chamber.class;
