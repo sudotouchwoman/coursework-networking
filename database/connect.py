@@ -11,7 +11,8 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
+LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/db.log')
+
 log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))

@@ -13,7 +13,8 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
+LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/db.log')
+
 log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
@@ -38,36 +39,37 @@ class ORM(ABC):
 
 class DataSource(ORM):
     def __init__(self, config: dict, sql_dir: str) -> None:
-        if config is None: raise ValueError
-        
+        if not isinstance(config, dict): raise ValueError(f'Config should be a dict instance, given {config}')
+
         try:
             queries = ORM.collect_queries(sql_dir)
         except NotADirectoryError:
             log.error(msg=f'Error occured while collecting queries')
             raise RuntimeError(f'Failed to collect cached queries from {sql_dir}')
-        
+
         self.config = config
         self.queries = queries
         log.debug(msg=f'Created DataSource')
 
 
     def fetch_results(self, query: str, *args) -> tuple or None:
-        log.debug(msg=f'Quey is {query}')
-        if not query in self.queries: return
-        log.debug(msg=f'Query found, fetches results')
+        if query not in self.queries:
+            log.error(msg=f'Unknown query provided: {query}. Abort')
+            return
+        log.debug(msg=f'Query found, fetching results')
 
         fetched = Query(self.config)\
             .execute_with_args(self.queries[query], *args)
-
         return fetched
 
 
 class DataModifier(DataSource):
     def update_table(self, query: str, *args) -> None:
-        if not query in self.queries: return
+        if query not in self.queries:
+            log.error(msg=f'Unknown query provided: {query}. Abort')
+            return
         log.debug(msg=f'Query to update found, performing')
 
         result_status = Query(self.config)\
             .execute_with_args(self.queries[query], *args)
-
         log.debug(msg=f'Query executed with status {result_status}')

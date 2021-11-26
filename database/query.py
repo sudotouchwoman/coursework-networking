@@ -12,7 +12,8 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/log-db-connection.log')
+LOGFILE = getenv('DB_LOGFILE_NAME', 'logs/db.log')
+
 log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
@@ -49,9 +50,8 @@ class Query():
             with connect.Connection(self.DB_CONFIG) as conn:
                 if not conn.CONNECTED: return
                 conn.CURSOR.execute(query=raw)
-                fetched = [row for row in conn.CURSOR.fetchall()]
-                log.debug(msg=f'Fetched {len(fetched)} rows')
-                log.debug(msg=f'Fetched this: {fetched}')
+                fetched = ( row for row in conn.CURSOR.fetchall() )
+                log.debug(msg=f'Affected {conn.CURSOR.rowcount} rows')
                 return fetched
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')
@@ -69,7 +69,6 @@ class Query():
                 conn.CURSOR.execute(query, args)
                 fetched = ( row for row in conn.CURSOR.fetchall() )
                 log.debug(msg=f'Affected {conn.CURSOR.rowcount} rows')
-                log.debug(msg=f'Fetched this: {fetched}')
                 return fetched
         except (OperationalError, ProgrammingError):
             log.error(msg=f'Encountered error during execution')

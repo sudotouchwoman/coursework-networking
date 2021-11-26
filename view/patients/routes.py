@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # set needed level and optionally disable logging completely
 
 DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/log-patients-app-state.log')
+LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/patients.log')
 log.disabled = getenv('LOG_ON', "True") == "False"
 
 log.setLevel(getattr(logging, DEBUGLEVEL))
