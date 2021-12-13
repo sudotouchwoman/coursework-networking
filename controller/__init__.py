@@ -54,21 +54,21 @@ class Validator(ABC):
         'second_name': And(str, lambda s: s.isalpha()),
         'passport': And(str, lambda s: not s or s.isdigit()),
         'city': And(str, lambda s: s.isalpha()),
-        'date_birth': And(str, lambda d: datetime.date(*map(int, d.split('-'))) < datetime.date.today()),
-        'chamber': And(str, lambda s: s.isdigit()),
-        'attending_doctor': str,
+        'date_birth': And(str, lambda d: datetime.datetime.strptime(d, '%Y-%m-%d').date() < datetime.date.today()),
+        'initial_diagnosis': Or(str, None)
         }
 
     APPOINTMENT_INSERT_TEMPLATE = {
         'asignee': And(str, lambda s: s.isalpha()),
         'patient': And(str, lambda s: s.isalpha()),
         Optional('about'): str,
-        Optional('scheduled'): And(str, lambda d: datetime.date(*map(int, d.split('-'))) >= datetime.date.today())
+        Optional('scheduled'): And(str, lambda d: datetime.datetime.strptime(d, '%Y-%m-%d').date() >= datetime.date.today())
     }
 
     @staticmethod
     def validate_patient_data(patient_data) -> bool:
         return validate_object(patient_data, Validator.PATIENT_INSERT_TEMPLATE)
+
 
     @staticmethod
     def validate_appointment_data(appointment_data) -> bool:

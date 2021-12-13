@@ -6,12 +6,12 @@ Hospital
 
 {%block styles%}
     {{ super() }}
-    <link href="{{ url_for('patients_bp.static', filename='css/home.css') }}" rel="stylesheet">
-    <link href="{{ url_for('patients_bp.static', filename='css/table.css') }}" rel="stylesheet">
+    <link href="{{ url_for('.static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('.static', filename='css/table.css') }}" rel="stylesheet">
 {%endblock%}
 
 {%block icon%}
-<link rel="shortcut icon" type="image/png" href="{{ url_for('patients_bp.static', filename='img/icon.png') }}">
+<link rel="shortcut icon" type="image/png" href="{{ url_for('.static', filename='img/icon.png') }}">
 {%endblock%}
 
 {%block content%}
@@ -20,7 +20,7 @@ Hospital
     <div class="row">
         <div class="col-md 12">
             {% if patients %}
-            <h1>Patients</h1>
+            <h1>Unassigned patients</h1>
             <table class="table">
                 <thead>
                     <tr>
@@ -29,50 +29,26 @@ Hospital
                         <th>Birth Date</th>
                         <th>City</th>
                         <th>Income Date</th>
-                        <th>Outcome Date</th>
-                        <th>Initial diag</th>
-                        <th>Outcome diag</th>
-                        <th>Chamber &#8470;</th>
-                        <th>Attending doctor</th>
+                        <th>Initial diagnosis</th>
                         <th>Edit</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for patient in patients %}
-                {% if patient['active'] %}
                     <tr class="active">
                         <td>{{patient['num']}}</td>
                         <td>{{patient['name']}}</td>
                         <td>{{patient['birth_date']}}</td>
                         <td>{{patient['city']}}</td>
                         <td>{{patient['income_date']}}</td>
-                        <td>{{patient['outcome_date']}}</td>
                         <td>{{patient['income_diag']}}</td>
-                        <td>{{patient['outcome_diag']}}</td>
-                        <td>{{patient['chamber']}}</td>
-                        <td>{{patient['doctor']}}</td>
                         <td>
                             <form action="" method="post">
                                 <input type="hidden" name="patient_id" value="{{patient['id']}}">
-                                <input type="submit" value="Discharge" style="background-color: gainsboro;">
+                                <input type="submit" value="Assign" style="background-color: gainsboro;">
                             </form>
                         </td>
                     </tr>
-                {% else %}
-                    <tr class="alert alert-warning">
-                        <td>{{patient['num']}}</td>
-                        <td>{{patient['name']}}</td>
-                        <td>{{patient['birth_date']}}</td>
-                        <td>{{patient['city']}}</td>
-                        <td>{{patient['income_date']}}</td>
-                        <td>{{patient['outcome_date']}}</td>
-                        <td>{{patient['income_diag']}}</td>
-                        <td>{{patient['outcome_diag']}}</td>
-                        <td>{{patient['chamber']}}</td>
-                        <td>{{patient['doctor']}}</td>
-                        <td></td>
-                    </tr>
-                {% endif %}
                 {% endfor %}
                 </tbody>
             </table>
@@ -80,45 +56,100 @@ Hospital
         </div>
     </div>
     <div class="row">
-            {% if chambers_full %}
-            <div class="alert alert-danger">
-                <strong>Accomodation inavaliable:</strong>
-                chambers are filled entirely!
-            </div>
+        {% if has_departments and detailed_patient_data %}
+        <div class="col-md-12">
+            <h1>Assign to department</h1>
+            <table class="table">
+                <thead>
+                    <th>Full name</th>
+                    <th>Birth Date</th>
+                    <th>City</th>
+                    <th>Symptoms</th>
+                    <th>Awaiting</th>
+                </thead>
+                <tr>
+                    <td>{{detailed_patient_data['name']}}</td>
+                    <td>{{detailed_patient_data['birth_date']}}</td>
+                    <td>{{detailed_patient_data['city']}}</td>
+                    <td>{{detailed_patient_data['income_diag']}}</td>
+                    <td>{{detailed_patient_data['awaiting']}}</td>
+                </tr>
+            </table>
+            {% if departments %}
+            <form method="post" action="{{ url_for('.assign_to_department')}}" class="form">
+                <table style="width: 100%; align-items: center">
+                    <tr>
+                        <td>
+                            <select class="form-control" name="department_id" id="department">
+                            {% for department in departments %}
+                                <option value="{{ department['id'] }}">{{ department['title'] }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="hidden" class="form-control" name="patient_id" value="{{ detailed_patient_data['id'] }}">
+                            <input type="submit" class="form-control" id="submit" placeholder="Assign" style="background-color: gainsboro;">
+                        </td>
+                    </tr>
+                </table>
+            </form>
             {% else %}
+            <div class="alert alert-danger">
+                <strong>Failed to load departments/detailed patient info!</strong>
+                <p>try again</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if assign_response %}
+        <div class="alert alert-success">
+            <strong>Assigned to {{ assign_response['attending_doctor'] }}. Chamber: {{ assign_response['chamber'] }}</strong>
+        </div>
+        {% elif has_response %}
+        <div class="alert alert-warning">
+            <strong>Failed to assign, try again</strong>
+        </div>
+        {% endif %}
+    </div>
+    <div class="row">
             <div>
                 <h1>Create new patient record:</h1>
             </div>
-            <form class="form" action="{{ url_for('patients_bp.add_new_patient') }}" method="post">
+            <form class="form" action="{{ url_for('.add_new_patient') }}" method="post">
                 <div class="form-group">
-                    <input type="hidden" class="form-control" name="chamber" value="{{ optimal_chamber }}">
-                    <label style="font-weight: bold;" for="birthday" class="control-label col-sm-2">Date of birth:</label>
-                    <input type="date" class="form-control col-sm-10" name="date_birth" id="birthday" required>
-                    <label style="font-weight: bold;" for="city" class="control-label col-sm-2">City:</label>
-                    <input type="text" class="form-control col-sm-10" name="city" id="city" placeholder="Enter city name here" required>
-                </div>
-                <div class="form-group">
-                    <label for="passport" class="control-label col-sm-2">Passport</label>
-                    <input type="text" name="passport" id="passport" class="form-control" placeholder="XX-XX-XXXX">
-                </div>
-                <div class="form-group">
-                    <label style="font-weight: bold;" for="first_name" class="control-label col-sm-2">First name:</label>
-                    <input type="text" class="form-control col-sm-6" name="first_name" id="first_name" placeholder="Write here" required>
-                    <label style="font-weight: bold;" for="second_name" class="control-label col-sm-2">Second name:</label>
-                    <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Write here" required>
-                </div>
-                <div class="form-group">
-                    <label style="font-weight: bold;" for="doctor" class="control-label col-sm-2">Assign to doctor:</label>
-                    <select class="form-control" name="attending_doctor" id="doctor">
-                    {% for doctor in doctors %}
-                        <option value="{{ doctor['id'] }}">{{ doctor['name'] }}</option>
-                    {% endfor %}
-                    </select>
-                    <label for="submit"></label>
-                    <input type="submit" class="form-control" id="submit" placeholder="Add new patient" style="background-color: gainsboro;">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Symptoms" required>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <input type="date" class="form-control col-sm-10" name="date_birth" id="birthday" required>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control col-sm-10" name="city" id="city" placeholder="Enter city name here" required>
+                            </td>
+                            <td>                                
+                                <input type="text" name="passport" id="passport" class="form-control" placeholder="Passport: XX-XX-XXXX">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control col-sm-6" name="first_name" id="first_name" placeholder="First name" required>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Second name" required>
+                            </td>
+                            <td>                                    
+                                <input type="submit" class="form-control" id="submit" placeholder="Add new patient" style="background-color: gainsboro;">
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </form>
-            {% endif %}
     </div>
 </div>
 

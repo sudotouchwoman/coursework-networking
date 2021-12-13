@@ -1,6 +1,8 @@
+import json
 from os import getenv
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from json import loads, dumps
 
 from flask import (
     Blueprint,
@@ -48,40 +50,58 @@ def menu():
 @requires_login
 @requires_permission
 def add_new_patient():
-    attributes = ('first_name', 'passport', 'second_name', 'attending_doctor', 'date_birth', 'chamber', 'city')
+    attributes = ('first_name', 'passport', 'second_name', 'date_birth', 'city', 'initial_diagnosis')
     new_patient_data = { attribute: request.values.get(attribute) for attribute in attributes }
 
     PatientController().create_patient_record(new_patient_data)
-    return redirect(url_for('patients_bp.list_patients'))
+    return redirect(url_for('.list_patients'))
 
 
 @patients_bp.route('/list', methods=['POST', 'GET'])
 @requires_login
 @requires_permission
 def list_patients():
+    log.info(msg=f'Renders patient list')
+
+    patients = PatientController().fetch_unassigned()
+
+    if patients is None:
+        log.warning(msg=f'Renders empty page bc fetched data is empty')
+        return render_template('hospital_empty.j2')
+    
     if request.method == 'GET':
-        log.info(msg=f'Renders patient list')
+        
+        if 'assign_response' not in request.values:
+                return render_template(
+                'patient_list.j2',
+                patients=patients)
 
-        patients = PatientController().fetch_all_patients()
-        doctors = HospitalController().get_doctors()
-        chamber = HospitalController().check_chambers_capacity()
-
-        if doctors is None or patients is None or chamber is None:
-            log.warning(msg=f'Renders empty page as fetched data is empty')
-            return render_template('hospital_empty.j2')
+        assign_response = loads(request.values['assign_response'])
 
         return render_template(
             'patient_list.j2',
-            doctors=doctors,
             patients=patients,
-            chambers_full=(chamber is None),
-            optimal_chamber=chamber)
+            has_response=True,
+            assign_response=assign_response)
 
-    to_discharge = request.values.get('patient_id')
-    PatientController().discharge_patient(to_discharge)
-    return redirect(url_for('patients_bp.list_patients'))
-    
+    departments = HospitalController().get_department_list()
+    patient = request.values.get('patient_id')
+    patient = PatientController().find_patient(patient)
 
-    
-    
+    return render_template(
+        'patient_list.j2',
+        has_departments=True,
+        departments=departments,
+        detailed_patient_data=patient,
+        patients=patients)
 
+
+@patients_bp.route('/assign', methods=['POST'])
+@requires_login
+@requires_permission
+def assign_to_department():
+    to_assign = request.values.get('patient_id')
+    where_to_assign = request.values.get('department_id')
+
+    assign_response = PatientController().assign_patient(to_assign, where_to_assign)
+    return redirect(url_for('.list_patients', assign_response=dumps(assign_response)))

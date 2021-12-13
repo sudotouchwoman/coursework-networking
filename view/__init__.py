@@ -17,4 +17,5 @@ def create_app(settings):
         app.register_blueprint(hospital_bp, url_prefix='/hospital')
         app.register_blueprint(patients_bp, url_prefix='/patients')
         app.register_blueprint(auth_bp, url_prefix='/auth')
+
         return app

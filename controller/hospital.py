@@ -29,6 +29,7 @@ DB_CONFIG = current_app.config['DB'].get('hospital')
 SQL_DIR = current_app.config.get('QUERIES')
 
 class HospitalController:
+
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
         if db_settings is None or sql_dir is None:
             log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
