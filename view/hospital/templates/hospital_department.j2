@@ -1,7 +1,7 @@
 {% extends 'menu.j2' %}
 
 {% block title %}
-Department info
+Отчет об отделениях
 {% endblock title %}
 
 {% block styles %}
@@ -17,41 +17,49 @@ Department info
 {% block content %}
 <div class="container">
     <div class="col-md-12">
-        <h1>Department page</h1>
+        <h1>Отделения</h1>
     </div>
     {% if departments %}
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-6">
             <form action="" method="post" class="form-horizontal">
-                <div class="form-group">
-                    <select class="form-control" name="selected_department" style="text-align: center;">
-                {% for department in departments %}
-                {% if report and department['title'] == report['title']%}
-                <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}' 
-                    class="form-control" selected="selected">{{ department['title'] }}</option>
-                {% else %}
-                <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}'
-                    class="form-control">{{ department['title'] }}</option>
-                {% endif %}
-                {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="submit" class="form-control" placeholder="Select" style="background-color: gainsboro;">
-                </div>
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <div class="form-group">                                
+                                <select class="form-control" name="selected_department" style="text-align: center;">
+                            {% for department in departments %}
+                            {% if report and department['title'] == report['title']%}
+                            <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}' 
+                                class="form-control" selected="selected">{{ department['title'] }}</option>
+                            {% else %}
+                            <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}'
+                                class="form-control">{{ department['title'] }}</option>
+                            {% endif %}
+                            {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input type="submit" class="form-control" placeholder="Select" style="background-color: gainsboro;">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </form>
         </div>
-        <div class="col-md-9" style="text-align: left;">
+        <div class="col-md-6" style="text-align: left;">
         {% if report %}
-            <h2 style="text-align: left;"><strong>{{ report['title'] }}. Head doctor: </strong>{{ report['head'] }}</h2>
+            <h2 style="text-align: left;"><strong>{{ report['title'] }}. Заведующий отделением: </strong>{{ report['head'] }}</h2>
         {% else %}
-            <p>Department head and chamber capacity. Please, select one in the dropdown menu</p>
+            <p>Чтобы получить информацию о заведующем отделением и палатах, пожалуйста, выберите отделение в выпадающем списке</p>
         {% endif %}
         </div>
     </div>
     {% else %}
         <div class="alert alert-danger">
-            <strong>Looks like there was an error on server!</strong><p>Refresh page or come back later...</p>
+            <strong>Произошла ошибка на сервере!</strong><p>Перезагрузите страницу или возвращайтесь позже...</p>
         </div>
     {% endif %}
     {% if report %}
@@ -59,11 +67,11 @@ Department info
             <div class="col-md-12">
                 <table class="table table-striped">
                     <thead>
-                        <tr>
-                            <td style="text-align: center;">&#8470;</td>
-                            <td style="text-align: center;">Chamber class</td>
-                            <td style="text-align: center;">Total space in chambers</td>
-                            <td style="text-align: center;">Occupied space</td>
+                        <tr style="font-weight: bold;">
+                            <td style="font-weight: bold; text-align: center;">&#8470;</td>
+                            <td style="font-weight: bold; text-align: center;">Тип палаты</td>
+                            <td style="font-weight: bold; text-align: center;">Общее число мест</td>
+                            <td style="font-weight: bold; text-align: center;">Занято мест</td>
                         </tr>
                     </thead>
                     <tbody>

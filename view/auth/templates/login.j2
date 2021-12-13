@@ -1,7 +1,7 @@
 {% extends "menu.j2" %}
 
 {% block title %}
-Login
+Вход в систему
 {% endblock %}
 
 {%block icon%}
@@ -14,19 +14,19 @@ Login
         {% if login_error %}
         <div class="alert alert-danger">
             <p style="font-size: 100px;">⚠️</p>
-            <h2 style="text-align: center;">Invalid credentials, please try again!</h2>
+            <h2 style="text-align: center;">Некорректные данные, попробуйте снова!</h2>
         {% else %}
         <div class="alert alert-warning">
             <p style="font-size: 100px;">🔑🔒</p>
-            <h2 style="text-align: center;">Please enter your credentials!</h2>
+            <h2 style="text-align: center;">Введите данные учетной записи!</h2>
         {% endif %}
             <form class="form" action="{{ url_for('auth_bp.login') }}" method="post">
                     <label for="login"></label>
-                    <input type="text" class="form-control  col-md-6" name="login" id="login" placeholder="Login" aria-required="true">
+                    <input type="text" class="form-control  col-md-6" name="login" id="login" placeholder="Логин" aria-required="true">
                     <label for="login"></label>
-                    <input type="password" class="form-control  col-md-6" name="password" id="password" placeholder="Password" aria-required="true">
+                    <input type="password" class="form-control  col-md-6" name="password" id="password" placeholder="Пароль" aria-required="true">
                     <label for="submit"></label>
-                    <input type="submit" class="form-control" id="submit" value="Send" style="background-color: gainsboro;">
+                    <input type="submit" class="form-control" id="submit" value="Войти" style="background-color: gainsboro;">
             </form>
         </div>
     </div>

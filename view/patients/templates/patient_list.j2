@@ -1,7 +1,7 @@
 {% extends 'menu.j2' %}
 
 {%block title%}
-Hospital
+Госпиталь
 {%endblock%}
 
 {%block styles%}
@@ -20,17 +20,17 @@ Hospital
     <div class="row">
         <div class="col-md 12">
             {% if patients %}
-            <h1>Unassigned patients</h1>
+            <h1>Нераспределенные пациенты</h1>
             <table class="table">
                 <thead>
                     <tr>
                         <th>&#8470;</th>
-                        <th>Name</th>
-                        <th>Birth Date</th>
-                        <th>City</th>
-                        <th>Income Date</th>
-                        <th>Initial diagnosis</th>
-                        <th>Edit</th>
+                        <th>ФИО</th>
+                        <th>Дата рождения</th>
+                        <th>Город</th>
+                        <th>Дата обращения</th>
+                        <th>Симптомы, жалобы</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,14 +58,14 @@ Hospital
     <div class="row">
         {% if has_departments and detailed_patient_data %}
         <div class="col-md-12">
-            <h1>Assign to department</h1>
-            <table class="table">
+            <h1>Определить в отделение</h1>
+            <table class="table table-borderless">
                 <thead>
-                    <th>Full name</th>
-                    <th>Birth Date</th>
-                    <th>City</th>
-                    <th>Symptoms</th>
-                    <th>Awaiting</th>
+                    <th>ФИО</th>
+                    <th>Дата рождения</th>
+                    <th>Город</th>
+                    <th>Симптомы, жалобы</th>
+                    <th>Ожидает распределения</th>
                 </thead>
                 <tr>
                     <td>{{detailed_patient_data['name']}}</td>
@@ -88,63 +88,63 @@ Hospital
                         </td>
                         <td>
                             <input type="hidden" class="form-control" name="patient_id" value="{{ detailed_patient_data['id'] }}">
-                            <input type="submit" class="form-control" id="submit" placeholder="Assign" style="background-color: gainsboro;">
+                            <input type="submit" class="form-control" id="submit" placeholder="Определить" style="background-color: gainsboro;">
                         </td>
                     </tr>
                 </table>
             </form>
             {% else %}
             <div class="alert alert-danger">
-                <strong>Failed to load departments/detailed patient info!</strong>
-                <p>try again</p>
+                <strong>Произошла ошибка во время получения данных об отделениях!</strong>
+                <p>Попробуйте снова</p>
             </div>
             {% endif %}
         </div>
         {% endif %}
         {% if assign_response %}
         <div class="alert alert-success">
-            <strong>Assigned to {{ assign_response['attending_doctor'] }}. Chamber: {{ assign_response['chamber'] }}</strong>
+            <strong>Назначен лечащий врач: {{ assign_response['attending_doctor'] }}. Палата &#8470; {{ assign_response['chamber'] }}</strong>
         </div>
         {% elif has_response %}
         <div class="alert alert-warning">
-            <strong>Failed to assign, try again</strong>
+            <strong>Произошла ошибка во время прикрепления к отделению</strong>
         </div>
         {% endif %}
     </div>
     <div class="row">
             <div>
-                <h1>Create new patient record:</h1>
+                <h1>Внести пациента в систему:</h1>
             </div>
             <form class="form" action="{{ url_for('.add_new_patient') }}" method="post">
                 <div class="form-group">
                     <table class="table">
                         <tr>
                             <td>
-                                <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Symptoms" required>
+                                <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Симптомы" required>
                             </td>
                         </tr>
                     </table>
                     <table class="table">
                         <tr>
                             <td>
-                                <input type="date" class="form-control col-sm-10" name="date_birth" id="birthday" required>
+                                <input type="date" class="form-control col-sm-10" name="date_birth" id="Дата рождения" required>
                             </td>
                             <td>
-                                <input type="text" class="form-control col-sm-10" name="city" id="city" placeholder="Enter city name here" required>
+                                <input type="text" class="form-control col-sm-10" name="city" id="city" placeholder="Город" required>
                             </td>
                             <td>                                
-                                <input type="text" name="passport" id="passport" class="form-control" placeholder="Passport: XX-XX-XXXX">
+                                <input type="text" name="passport" id="passport" class="form-control" placeholder="Паспорт: XX-XX-XXXX">
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <input type="text" class="form-control col-sm-6" name="first_name" id="first_name" placeholder="First name" required>
+                                <input type="text" class="form-control col-sm-6" name="first_name" id="first_name" placeholder="Имя" required>
                             </td>
                             <td>
-                                <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Second name" required>
+                                <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Фамилия" required>
                             </td>
                             <td>                                    
-                                <input type="submit" class="form-control" id="submit" placeholder="Add new patient" style="background-color: gainsboro;">
+                                <input type="submit" class="form-control" id="submit" placeholder="Добавить пациента" style="background-color: gainsboro;">
                             </td>
                         </tr>
                     </table>

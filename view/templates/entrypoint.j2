@@ -10,11 +10,11 @@ Main menu
         <div class="alert alert-success">
             <p style="font-size: 100px;">🏥</p>
             {% if 'group_name' in session %}
-            <h1>Welcome back, {{ session['name'] }}!</h1>
-            <h2>You are currently logged in as {{ session['group_name'] }}</h2>
+            <h1>Добро пожаловать, {{ session['name'] }}!</h1>
+            <h2>Ваша группа - {{ session['group_name'] }}</h2>
             {% else %}
-            <h1>Dear guest, you did not introduce yourself</h1>
-            <h2>Sign in using your account at the login page</h2>
+            <h1>Дорогой гость, вы не представились системе!</h1>
+            <h2>Войдите в вашу учетную запись на странице авторизации</h2>
             {% endif %}
         </div>
     </div>

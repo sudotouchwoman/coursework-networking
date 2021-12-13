@@ -21,12 +21,12 @@
 </th>
 {% else %}
     <th style="font-size: larger;">⚠️</th>
-    {{ navlink('auth_bp.login', 'Login?') }}
+    {{ navlink('auth_bp.login', 'Войти') }}
 {% endif %}
 {% endmacro %}
 
 {%block title%}
-Hospital menu
+Меню
 {%endblock%}
 
 {%block styles%}
@@ -42,13 +42,13 @@ Hospital menu
 {%block body%}
 <div class="container">
     <div class="row">
-            <table class="table" style="margin-bottom: 30px;">
+            <table class="table table-borderless" style="margin-bottom: 30px;">
                 <thead>
                     <tr>
-                        {{ navlink('hospital_bp.department_report', 'Department') }}
-                        {{ navlink('hospital_bp.assignment_list', 'Assignment list') }}
-                        {{ navlink('hospital_bp.list_appointments', 'Appointments') }}
-                        {{ navlink('patients_bp.list_patients', 'List patients') }}
+                        {{ navlink('hospital_bp.department_report', 'Отделения') }}
+                        {{ navlink('hospital_bp.assignment_list', 'Пациенты') }}
+                        {{ navlink('hospital_bp.list_appointments', 'Задачи') }}
+                        {{ navlink('patients_bp.list_patients', 'Распределение пациентов') }}
                         {{ loginshield() }}
                     </tr>
                 </thead>

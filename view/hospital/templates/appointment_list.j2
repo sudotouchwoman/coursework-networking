@@ -1,7 +1,7 @@
 {% extends 'menu.j2' %}
 
 {%block title%}
-Hospital
+Госпиталь
 {%endblock%}
 
 {%block styles%}
@@ -19,18 +19,18 @@ Hospital
 <div class="container" id="body">
     <div class="row">
         <div class="col-md 12">
-            <h1>All appointments for {{ session['name'] }}</h1>
+            <h1>Все приемы для {{ session['name'] }}</h1>
             {% if appointments %}
             <table class="table">
                 <thead>
                     <tr>
                         <th>&#8470;</th>
                         <th>ID</th>
-                        <th>Date and Time</th>
-                        <th>Patient</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th style="text-align: right;">Actions</th>
+                        <th>Дата и время</th>
+                        <th>Пациент</th>
+                        <th>Описание</th>
+                        <th>Статус</th>
+                        <th style="text-align: right;">Действия</th>
                         <th style="text-align: center;"></th>
                     </tr>
                 </thead>
@@ -48,14 +48,14 @@ Hospital
                             <form action="" method="post" style="text-align: justify">
                                 <input type="hidden" name="appointment_id" value="{{todo['id']}}">
                                 <input type="hidden" name="action" value="accept">
-                                <input type="submit" value="Accept" style="background-color: gainsboro;">
+                                <input type="submit" value="Принять" style="background-color: gainsboro;">
                             </form>
                         </td>
                         <td>
                             <form action="" method="post" style="text-align: justify">
                                 <input type="hidden" name="appointment_id" value="{{todo['id']}}">
                                 <input type="hidden" name="action" value="reject">
-                                <input type="submit" value="Reject" style="background-color: gainsboro;">
+                                <input type="submit" value="Отклонить" style="background-color: gainsboro;">
                             </form>
                         </td>
                     </tr>
@@ -72,7 +72,7 @@ Hospital
                             <form action="" method="post" style="text-align: justify">
                                 <input type="hidden" name="appointment_id" value="{{todo['id']}}">
                                 <input type="hidden" name="action" value="complete">
-                                <input type="submit" value="Mark done" style="background-color: gainsboro;">
+                                <input type="submit" value="Завершить" style="background-color: gainsboro;">
                             </form>
                         </td>
                         <td></td>
@@ -119,7 +119,7 @@ Hospital
             </table>
             {% else %}
             <div class="alert alert-info">
-                <strong>The list is empty!</strong><p>Come back later</p>
+                <strong>Список пуст!</strong><p> возвращайтесь позже</p>
             </div>
             {% endif %}
         </div>

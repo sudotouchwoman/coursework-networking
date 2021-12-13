@@ -200,7 +200,7 @@ class HospitalController:
             for i, row in enumerate(filtered, start=1):
                 try:
                     initials = DataSource(self.SETTINGS, self.SQL)\
-                        .fetch_results('fetch-patient-initials', row[2])
+                        .fetch_results('fetch-patient-byid', row[2])
                     initials = list(initials)[0]
                     yield {
                         'num': i,

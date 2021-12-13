@@ -1,7 +1,7 @@
 {% extends 'menu.j2' %}
 
 {% block title %}
-Assigned patients
+Ваши пациенты
 {% endblock title %}
 
 {% block styles %}
@@ -19,24 +19,24 @@ Assigned patients
     <div class="row">
     {% if 'name' not in session %}
         <div class="alert alert-danger">
-            <strong>Looks like there was an error on server!</strong><p>Refresh page or come back later...</p>
+            <strong>Похоже, на сервере произошла ошибка!</strong><p>Перезагрузите страницу или возвращайтесь позже.</p>
         </div>
     {% endif %}
     {% if assigned %}
         <div class="row">
             <h1>
-                Work with patients ({{ session.name }})
+                Ваши пациенты, {{ session.name }}
             </h1>
             <div class="col-md-12">
                 <table class="table table-striped">
                     <thead>
-                        <tr>
+                        <tr style="font-weight: bold;">
                             <td>&#8470;</td>
-                            <td>Name</td>
-                            <td>Diagnosis</td>
-                            <td>Birth date</td>
-                            <td>Chamber &#8470;</td>
-                            <td>Time in hospital</td>
+                            <td>ФИО</td>
+                            <td>Диагноз</td>
+                            <td>Дата рождения</td>
+                            <td>&#8470; палаты</td>
+                            <td>Дней в госпитале</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,7 +58,7 @@ Assigned patients
     <div class="row">
         <div class="col-md-12">
             <div class="alert alert-warning">
-                <strong>No patients assigned!</strong>
+                <strong>Нет прикрепленных пациентов!</strong>
             </div>
         </div>
     </div>

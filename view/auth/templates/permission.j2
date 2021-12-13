@@ -1,7 +1,7 @@
 {% extends "menu.j2" %}
 
 {% block title %}
-Permission denied
+Недостаточно прав
 {% endblock %}
 
 {%block icon%}
@@ -13,8 +13,8 @@ Permission denied
 <div class="container">
     <div class="alert alert-danger">
         <p style="font-size: 100px;">⚠️</p>
-        <h1>You do not have rights to see contents of this page</h1>
-        <h2>Click <a href="{{ url_for('auth_bp.login') }}">here</a> to warp to the login page</a></h2>
+        <h1>У вас нет прав для просмотра данной страницы</h1>
+        <h2>Нажмите <a href="{{ url_for('auth_bp.login') }}">здесь</a>, чтобы перейти на страницу авторизации</a></h2>
     </div>
 </div>
 
