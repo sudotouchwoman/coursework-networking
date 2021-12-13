@@ -45,17 +45,17 @@
                         <td>{{todo['about']}}</td>
                         <td>{{todo['status']}}</td>
                         <td>
-                            <form action="" method="post" style="text-align: justify">
-                                <input type="hidden" name="appointment_id" value="{{todo['id']}}">
-                                <input type="hidden" name="action" value="accept">
-                                <input type="submit" value="Принять" style="background-color: gainsboro;">
+                            <form action="" class="form" method="post" style="text-align: justify">
+                                <input class="form-control"  type="hidden" name="appointment_id" value="{{todo['id']}}">
+                                <input class="form-control"  type="hidden" name="action" value="accept">
+                                <input class="form-control"  type="submit" value="Принять" style="background-color: gainsboro;">
                             </form>
                         </td>
                         <td>
-                            <form action="" method="post" style="text-align: justify">
-                                <input type="hidden" name="appointment_id" value="{{todo['id']}}">
-                                <input type="hidden" name="action" value="reject">
-                                <input type="submit" value="Отклонить" style="background-color: gainsboro;">
+                            <form action="" class="form" method="post" style="text-align: justify">
+                                <input class="form-control"  type="hidden" name="appointment_id" value="{{todo['id']}}">
+                                <input class="form-control"  type="hidden" name="action" value="reject">
+                                <input class="form-control"  type="submit" value="Отклонить" style="background-color: gainsboro;">
                             </form>
                         </td>
                     </tr>
@@ -69,10 +69,10 @@
                         <td>{{todo['about']}}</td>
                         <td>{{todo['status']}}</td>
                         <td>
-                            <form action="" method="post" style="text-align: justify">
-                                <input type="hidden" name="appointment_id" value="{{todo['id']}}">
-                                <input type="hidden" name="action" value="complete">
-                                <input type="submit" value="Завершить" style="background-color: gainsboro;">
+                            <form action="" class="form" method="post" style="text-align: justify">
+                                <input class="form-control"  type="hidden" name="appointment_id" value="{{todo['id']}}">
+                                <input class="form-control"  type="hidden" name="action" value="complete">
+                                <input class="form-control"  type="submit" value="Завершить" style="background-color: gainsboro;">
                             </form>
                         </td>
                         <td></td>

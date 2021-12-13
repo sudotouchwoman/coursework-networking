@@ -189,11 +189,11 @@ class HospitalController:
 
         handle_null = lambda s: 'N/A' if s is None or not s else s
         def handle_status_code(s: int) -> str:
-            if s == 0: return 'Pending request'
-            if s == 1: return 'Accepted'
-            if s == 2: return 'Rejected'
-            if s == 3: return 'Done'
-            return 'Unknown status'
+            if s == 0: return u'Новый запрос'
+            if s == 1: return u'Принят'
+            if s == 2: return u'Отклонен'
+            if s == 3: return u'Выполнен'
+            return 'Неизвестный статус'
 
 
         def process_rows():

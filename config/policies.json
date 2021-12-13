@@ -4,6 +4,11 @@
       "hospital_bp",
       ""
     ],
+    "registrator": [
+      "auth_bp",
+      "patients_bp",
+      ""
+    ],
     "admin": [
       "auth_bp",
       "hospital_bp",
@@ -11,6 +16,7 @@
       ""
     ],
     "unauthorized": [
-      "auth_bp"
+      "auth_bp",
+      ""
     ]
   }

@@ -28,30 +28,30 @@
                         <td>
                             <div class="form-group">                                
                                 <select class="form-control" name="selected_department" style="text-align: center;">
-                            {% for department in departments %}
-                            {% if report and department['title'] == report['title']%}
-                            <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}' 
-                                class="form-control" selected="selected">{{ department['title'] }}</option>
-                            {% else %}
-                            <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}'
-                                class="form-control">{{ department['title'] }}</option>
-                            {% endif %}
-                            {% endfor %}
+                                {% for department in departments %}
+                                {% if report and department['title'] == report['title']%}
+                                <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}' 
+                                    class="form-control" selected="selected">{{ department['title'] }}</option>
+                                {% else %}
+                                <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}'
+                                    class="form-control">{{ department['title'] }}</option>
+                                {% endif %}
+                                {% endfor %}
                                 </select>
                             </div>
                         </td>
                         <td>
                             <div class="form-group">
-                                <input type="submit" class="form-control" placeholder="Select" style="background-color: gainsboro;">
+                                <input type="submit" class="form-control"  value="Выбрать" style="background-color: gainsboro;">
                             </div>
                         </td>
                     </tr>
                 </table>
             </form>
         </div>
-        <div class="col-md-6" style="text-align: left;">
+        <div class="col-md-6">
         {% if report %}
-            <h2 style="text-align: left;"><strong>{{ report['title'] }}. Заведующий отделением: </strong>{{ report['head'] }}</h2>
+            <h3>{{ report['title'] }}. Заведующий отделением:{{ report['head'] }}</h3>
         {% else %}
             <p>Чтобы получить информацию о заведующем отделением и палатах, пожалуйста, выберите отделение в выпадающем списке</p>
         {% endif %}
@@ -68,10 +68,10 @@
                 <table class="table table-striped">
                     <thead>
                         <tr style="font-weight: bold;">
-                            <td style="font-weight: bold; text-align: center;">&#8470;</td>
-                            <td style="font-weight: bold; text-align: center;">Тип палаты</td>
-                            <td style="font-weight: bold; text-align: center;">Общее число мест</td>
-                            <td style="font-weight: bold; text-align: center;">Занято мест</td>
+                            <td style="font-weight: bold;">&#8470;</td>
+                            <td style="font-weight: bold;">Тип палаты</td>
+                            <td style="font-weight: bold;">Общее число мест</td>
+                            <td style="font-weight: bold;">Занято мест</td>
                         </tr>
                     </thead>
                     <tbody>

@@ -20,8 +20,8 @@
     <div class="row">
         <div class="col-md 12">
             {% if patients %}
-            <h1>Нераспределенные пациенты</h1>
-            <table class="table">
+            <h1>Не распределенные пациенты</h1>
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>&#8470;</th>
@@ -35,7 +35,7 @@
                 </thead>
                 <tbody>
                 {% for patient in patients %}
-                    <tr class="active">
+                    <tr>
                         <td>{{patient['num']}}</td>
                         <td>{{patient['name']}}</td>
                         <td>{{patient['birth_date']}}</td>
@@ -43,9 +43,9 @@
                         <td>{{patient['income_date']}}</td>
                         <td>{{patient['income_diag']}}</td>
                         <td>
-                            <form action="" method="post">
+                            <form class="form" action="" method="post">
                                 <input type="hidden" name="patient_id" value="{{patient['id']}}">
-                                <input type="submit" value="Assign" style="background-color: gainsboro;">
+                                <input class="form-control" type="submit" value="Выбрать отделение" style="background-color: gainsboro;">
                             </form>
                         </td>
                     </tr>
@@ -56,8 +56,8 @@
         </div>
     </div>
     <div class="row">
-        {% if has_departments and detailed_patient_data %}
         <div class="col-md-12">
+        {% if has_departments and detailed_patient_data %}
             <h1>Определить в отделение</h1>
             <table class="table table-borderless">
                 <thead>
@@ -88,7 +88,7 @@
                         </td>
                         <td>
                             <input type="hidden" class="form-control" name="patient_id" value="{{ detailed_patient_data['id'] }}">
-                            <input type="submit" class="form-control" id="submit" placeholder="Определить" style="background-color: gainsboro;">
+                            <input type="submit" class="form-control" id="submit" value="Определить" style="background-color: gainsboro;">
                         </td>
                     </tr>
                 </table>
@@ -99,32 +99,32 @@
                 <p>Попробуйте снова</p>
             </div>
             {% endif %}
+            {% endif %}
+            {% if assign_response %}
+            <div class="alert alert-success">
+                <strong>Назначен лечащий врач: {{ assign_response['attending_doctor'] }}. Палата &#8470; {{ assign_response['chamber'] }}</strong>
+            </div>
+            {% elif has_response %}
+            <div class="alert alert-warning">
+                <strong>Произошла ошибка во время прикрепления к отделению</strong>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
-        {% if assign_response %}
-        <div class="alert alert-success">
-            <strong>Назначен лечащий врач: {{ assign_response['attending_doctor'] }}. Палата &#8470; {{ assign_response['chamber'] }}</strong>
-        </div>
-        {% elif has_response %}
-        <div class="alert alert-warning">
-            <strong>Произошла ошибка во время прикрепления к отделению</strong>
-        </div>
-        {% endif %}
     </div>
-    <div class="row">
+    <div class="row" style="margin-top: 20px;">
             <div>
-                <h1>Внести пациента в систему:</h1>
+                <h1>Внести пациента в систему</h1>
             </div>
             <form class="form" action="{{ url_for('.add_new_patient') }}" method="post">
                 <div class="form-group">
-                    <table class="table">
+                    <table class="table table-borderless">
                         <tr>
                             <td>
-                                <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Симптомы" required>
+                                <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Симптомы, диагноз" required>
                             </td>
                         </tr>
                     </table>
-                    <table class="table">
+                    <table class="table table-borderless">
                         <tr>
                             <td>
                                 <input type="date" class="form-control col-sm-10" name="date_birth" id="Дата рождения" required>
@@ -144,7 +144,7 @@
                                 <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Фамилия" required>
                             </td>
                             <td>                                    
-                                <input type="submit" class="form-control" id="submit" placeholder="Добавить пациента" style="background-color: gainsboro;">
+                                <input type="submit" class="form-control" id="submit" value="Добавить пациента" style="background-color: gainsboro;">
                             </td>
                         </tr>
                     </table>
