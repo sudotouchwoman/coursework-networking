@@ -31,6 +31,8 @@ DB_CONFIG = current_app.config['DB'].get('hospital')
 SQL_DIR = current_app.config.get('QUERIES')
 
 class PatientController:
+    '''Controller for patient routines. The methods contain
+    '''
 
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
         if db_settings is None or sql_dir is None:
@@ -45,6 +47,22 @@ class PatientController:
 
 
     def create_patient_record(self, patient_data: dict) -> None:
+        '''Creates new record in `patient` table.
+        The data is validated before inserting.
+        
+        Args:
+        + `patient_data`: dict containing data to insert into table, should contain the following keys:
+            * `first_name`: `str`
+            * `second_name`: `str`
+            * `initial_diag`: `str`
+            * `passport`: `str` or `None`
+            * `date_birth`: iso-formatted date `str`
+            * `city`: `str`
+
+        Returns: `None`
+            '''
+
+        log.debug(msg=f'Creates new patient record')
         if patient_data is None:
             log.error(f'Patient creation aborted, the data is missing')
             return
@@ -61,9 +79,21 @@ class PatientController:
         )
 
         self.MODIFIER.update_table('create-patient-record', *patient_data)
+        log.info(msg=f'Created new patient record')
 
 
     def find_patient(self, patient_id: int) -> dict or None:
+        '''Looks for record in `patient` table with given `patient_id` primary key.
+        return the formatted `dict` if successfully, `None` otherwise.
+        
+        Args:
+
+        + `patient_id`: `int`
+
+        Returns: `None` or `dict`
+            '''
+
+        log.debug(msg=f'Patient lookup with id {patient_id}')
         try:
             patient_data = list(self.SOURCE.fetch_results('fetch-patient-byid', patient_id))[0]
             handle_null = lambda s: 'N/A' if s is None or not s else s
@@ -84,6 +114,14 @@ class PatientController:
 
 
     def fetch_all_patients(self) -> None or tuple:
+        '''
+        Fetch all records from `patient` table. Return `None` if error occurs,
+        generator is returned otherwise. Each generator item is `dict` of
+        patient properties to be parsed during template building.
+
+        Returns: `None` or `Iterable[dict[str, Any]]`
+        '''
+
         log.debug(msg=f'Fetches patient list')
 
         patients = self.SOURCE.fetch_results('fetch-patients')
@@ -111,16 +149,33 @@ class PatientController:
                         'attending_doctor': ' '.join(row[11:13]),
                         'id_doctor': row[13]
                     }
-
+        log.info(msg=f'Fetched patient list')
         return process_rows()
 
 
     def discharge_patient(self, patient_id: int) -> None:
+        '''Discharge patient, i.e. set the `outcome_date` column value to today.
+
+        Args:
+
+        * `patient_id`: `int`, primary key of the patient record to be updated
+
+        Returns: `None`
+        '''
+
         today = datetime.date.today().isoformat()
         self.MODIFIER.update_table('discharge-patient', today, patient_id)
+        log.info(msg=f'Discharged patient with id {patient_id}')
 
 
     def fetch_unassigned(self) -> None or tuple:
+        '''Fetch all patients who do not habe an attending doctor.
+        Simular to `fetch_all_patients()`. Return `None` if there was an error during
+        processing and generator expression otherwise.
+
+        Returns: `None` or `Iterable[dict[str, Any]]`
+        '''
+        
         log.debug(msg=f'Fetches unassigned patients')
 
         patients = self.SOURCE.fetch_results('fetch-newcome-patients')
@@ -144,14 +199,33 @@ class PatientController:
                         'income_diag': handle_null(row[7]),
                     }
 
+        log.info(msg=f'Fetched unassigned patients')
         return process_rows()
 
     def assign_patient(self, patient_id: int, department_id: int) -> dict or None:
+        '''Try to assign given patient to the provided `department_id`. This said, matching
+        doctor and chamber with free space should be found. First, try to find doctor and chamber
+        according to the rules specified in sql queries `select-least-loaded` and `check-chambers`.
+        
+        The former looks for a doctor working at given department with least assigned patients
+        and the latter looks for a chamber with most free space.
+
+        If the procedure is successful (this said, optimal doctor and chamber were found), return `dict`
+        containing attending doctor initials and chamber id.
+
+        Args:
+
+        * `patient_id`: int, patient to assign
+        * `department_id`: int, department to assign to
+
+        Returns: `None` or `dict[str, [int, str]]`
+        '''
+
         optimal_doctor = self.SOURCE.fetch_results('select-least-loaded', department_id)
         optimal_chamber = self.SOURCE.fetch_results('check-chambers', department_id)
 
         if optimal_chamber is None or optimal_doctor is None:
-            # there was not found any matching chamber/doctor
+            # No matching chamber/doctor found
             log.error(msg=f'Did not found matching doctor/chamber')
             return
 
@@ -168,11 +242,12 @@ class PatientController:
             return
 
         # modify all tables
+        # should be uncommented to remove debug
         self.MODIFIER.update_table('assign-to-doctor', optimal_doctor, optimal_chamber, patient_id)
         # self.MODIFIER.update_table('add-patient', optimal_doctor)
         # self.MODIFIER.update_table('update-chamber', optimal_chamber)
 
-        log.debug(msg=f'Updated table: assigned {patient_id} to {optimal_doctor} ({doctor_initials}), chamber is {optimal_chamber}')
+        log.info(msg=f'Updated table: assigned {patient_id} to {optimal_doctor} ({doctor_initials}), chamber is {optimal_chamber}')
         return {
                 'attending_doctor': ' '.join(doctor_initials),
                 'chamber': optimal_chamber
@@ -180,6 +255,20 @@ class PatientController:
 
 
     def create_appointment_record(self, appointment_data: dict) -> None:
+        '''Create new record in `appointment` table. Validate the provided
+        data before inserting
+
+        Args:
+
+        * `appointment_data`: `dict`, should contain the following keys:
+            * `asignee`: `str`, doctor id
+            * `patient`: `str`, patient id
+            * `about` (optional): `str`
+            * `scheduled` (optional): `str`
+
+        Returns: `None`
+        '''
+        
         if appointment_data is None:
             log.error(f'Task creation aborted, the data is missing')
             return
@@ -194,3 +283,4 @@ class PatientController:
         )
 
         self.MODIFIER.update_table('create-appointment-record', *appointment_data)
+        log.info(msg=f'Created new task record')
