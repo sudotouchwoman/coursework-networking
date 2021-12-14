@@ -10,7 +10,7 @@ from flask import (
     render_template,
     session)
 
-from app.policies import requires_login, requires_permission
+from app.policies import requires_login
 
 app = Flask(
     __name__,
@@ -29,5 +29,5 @@ def exit_page() -> str:
     return render_template('exit.j2')
 
 @app.route('/menu', methods=['GET'])
-def menu():
+def main_menu():
     return render_template('entrypoint.j2')

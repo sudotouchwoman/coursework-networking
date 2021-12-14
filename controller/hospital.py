@@ -1,29 +1,14 @@
 '''
 Business-process for hospital (yet in a single module)
 '''
-from os import getenv
 import datetime
-import logging
-from logging.handlers import TimedRotatingFileHandler
 
 from flask import current_app
 
 from database.ORM import DataSource, DataModifier
+from app import make_logger
 
-log = logging.getLogger(__name__)
-# enable logging routines
-# write log to a file with specified filename (provided via environmental variable)
-# set needed level and optionally disable logging completely
-
-DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/hospital.log')
-log.disabled = getenv('LOG_ON', "True") == "False"
-
-log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
-formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
-handler.setFormatter(formatter)
-log.addHandler(handler)
+hospital_log = make_logger(__name__, 'logs/hospital.log')
 
 DB_CONFIG = current_app.config['DB'].get('hospital')
 SQL_DIR = current_app.config.get('QUERIES')
@@ -32,20 +17,21 @@ class HospitalController:
 
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
         if db_settings is None or sql_dir is None:
-            log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
-            log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
-            raise TypeError('Failed to create Hospital  controller')
-        self.SETTINGS = db_settings
-        self.SQL = sql_dir
+            hospital_log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
+            hospital_log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
+            raise TypeError('Failed to create Hospital controller')
+        
+        self.SOURCE = DataSource(db_settings, sql_dir)
+        self.MODIFIER = DataModifier(db_settings, sql_dir)
 
 
     def get_department_list(self) -> None or tuple:
         # candidate for caching
-        log.debug(msg=f'Fetches department list')
-        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('department-list')
+        hospital_log.debug(msg=f'Fetches department list')
+        selected = self.SOURCE.fetch_results('department-list')
 
         if selected is None:
-            log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
+            hospital_log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
             return
 
         def process_rows():
@@ -55,27 +41,27 @@ class HospitalController:
                     'title': row[1]
                 }
 
-        log.debug(msg=f'Fetched department list')
+        hospital_log.debug(msg=f'Fetched department list')
         return process_rows()
 
 
     def make_department_report(self, department_id: int, department_name: str = 'N/A') -> None or tuple:
-        log.debug(msg=f'Produces report for selected department {department_id}')
+        hospital_log.debug(msg=f'Produces report for selected department {department_id}')
         
-        collected = DataSource(self.SETTINGS, self.SQL)\
+        collected = self.SOURCE\
             .fetch_results('department-report', department_id)
 
         if collected is None:
-            log.error(msg=f'Failed to create report: is SQL server running? See db logs for more detailed info')
+            hospital_log.error(msg=f'Failed to create report: is SQL server running? See db logs for more detailed info')
             return
         
-        department_head = DataSource(self.SETTINGS, self.SQL)\
+        department_head = self.SOURCE\
             .fetch_results('department-head', department_id)
         
         try:
             department_head = list(department_head)[0]
         except (TypeError, IndexError):
-            log.error(msg=f'Error occured while obtaining\
+            hospital_log.error(msg=f'Error occured while obtaining\
                 initials of department head. Make sure the query is OK')
             department_head = 'N/A'
 
@@ -89,7 +75,7 @@ class HospitalController:
                         'occupied': row[2],
                     }
                 except IndexError:
-                    log.warning(msg=f'Index error while making department report\
+                    hospital_log.warning(msg=f'Index error while making department report\
                         make sure the SQL query is correct')
                     continue
         
@@ -102,11 +88,11 @@ class HospitalController:
 
     def get_doctors(self) -> None or tuple:
         # also condidate for caching
-        log.debug(msg=f'Fetches list of doctors')
-        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctorlist')
+        hospital_log.debug(msg=f'Fetches list of doctors')
+        selected = self.SOURCE.fetch_results('select-doctorlist')
 
         if selected is None:
-            log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
+            hospital_log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
             return
 
         def process_rows():
@@ -116,17 +102,17 @@ class HospitalController:
                     'name': ' '.join(row[1:])
                     }
 
-        log.debug(msg=f'Fetched list of doctors')
+        hospital_log.debug(msg=f'Fetched list of doctors')
         return process_rows()
 
 
     def get_assigned_to_doctor(self, doctor) -> None or tuple:
 
-        log.debug(msg=f'Collects assignees for {doctor}')
-        selected = DataSource(self.SETTINGS, self.SQL).fetch_results('fetch-patients-filterby-doctor', doctor)
+        hospital_log.debug(msg=f'Collects assignees for {doctor}')
+        selected = self.SOURCE.fetch_results('fetch-patients-filterby-doctor', doctor)
 
         if selected is None:
-            log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
+            hospital_log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
             return
 
         handle_null = lambda s: 'Not specified' if s is None or not s else s
@@ -142,30 +128,30 @@ class HospitalController:
                     'date_birth': row[5],
                 }
 
-        log.debug(msg=f'Successfully fetched report for given doctor')
+        hospital_log.debug(msg=f'Successfully fetched report for given doctor')
         return process_rows()
 
 
     def get_doctor_name(self, id_doctor: int) -> str or None:
-        name = DataSource(self.SETTINGS, self.SQL).fetch_results('select-doctor-initials', id_doctor)
+        name = self.SOURCE.fetch_results('select-doctor-initials', id_doctor)
         if name is None: return
         return ' '.join(name[0])
 
 
     def check_chambers_capacity(self) -> int or None:
-        log.debug(msg=f'Checks capacity of chambers')
+        hospital_log.debug(msg=f'Checks capacity of chambers')
 
-        chamber_data = DataSource(self.SETTINGS, self.SQL).fetch_results('check-chambers')
+        chamber_data = self.SOURCE.fetch_results('check-chambers')
         try:
             chamber_data = list(chamber_data)[0]
         except IndexError:
-            log.error(msg=f'Chambers must be full')
+            hospital_log.error(msg=f'Chambers must be full')
             return
         except TypeError:
-            log.error(msg=f'Error occured during db connection')
+            hospital_log.error(msg=f'Error occured during db connection')
             return
 
-        log.debug(msg=f'Chamber {chamber_data[0]} is the biggest chamber with free space')
+        hospital_log.debug(msg=f'Chamber {chamber_data[0]} is the biggest chamber with free space')
         return chamber_data[0]
 
     
@@ -177,14 +163,14 @@ class HospitalController:
         }
 
         if by not in options.keys():
-            log.error(msg=f'Invalid filter: {by}')
+            hospital_log.error(msg=f'Invalid filter: {by}')
             return
 
-        filtered = DataSource(self.SETTINGS, self.SQL)\
+        filtered = self.SOURCE\
             .fetch_results(options[by], value)
 
         if filtered is None:
-            log.warning(msg=f'Failed to fetch appointments satisfying {by}={value}')
+            hospital_log.warning(msg=f'Failed to fetch appointments satisfying {by}={value}')
             return
 
         handle_null = lambda s: 'N/A' if s is None or not s else s
@@ -199,7 +185,7 @@ class HospitalController:
         def process_rows():
             for i, row in enumerate(filtered, start=1):
                 try:
-                    initials = DataSource(self.SETTINGS, self.SQL)\
+                    initials = self.SOURCE\
                         .fetch_results('fetch-patient-byid', row[2])
                     initials = list(initials)[0]
                     yield {
@@ -214,7 +200,7 @@ class HospitalController:
                         'status_code': row[5]
                     }
                 except (TypeError, IndexError):
-                    log.warning(msg=f'Exception occured while processing row: {row}')
+                    hospital_log.warning(msg=f'Exception occured while processing row: {row}')
                     yield {
                         'num': i,
                         'id': row[0],
@@ -228,7 +214,7 @@ class HospitalController:
                     }
 
 
-        log.debug(msg=f'Successfully fetched appointments')
+        hospital_log.debug(msg=f'Successfully fetched appointments')
         return process_rows()
 
 
@@ -240,10 +226,10 @@ class HospitalController:
             }
 
         if action not in options.keys():
-            log.error(msg=f'Invalid action: {action}')
+            hospital_log.error(msg=f'Invalid action: {action}')
             return
 
-        DataModifier(self.SETTINGS, self.SQL)\
+        self.MODIFIER\
             .update_table('update-appointment', options[action], appointment_id)
         
 

@@ -1,18 +1,4 @@
-{% extends 'menu.j2' %}
-
-{%block title%}
-Госпиталь
-{%endblock%}
-
-{%block styles%}
-    {{ super() }}
-    <link href="{{ url_for('.static', filename='css/home.css') }}" rel="stylesheet">
-    <link href="{{ url_for('.static', filename='css/table.css') }}" rel="stylesheet">
-{%endblock%}
-
-{%block icon%}
-<link rel="shortcut icon" type="image/png" href="{{ url_for('.static', filename='img/icon.png') }}">
-{%endblock%}
+{% extends 'patient_menu.j2' %}
 
 {%block content%}
 
@@ -110,46 +96,6 @@
             </div>
             {% endif %}
         </div>
-    </div>
-    <div class="row" style="margin-top: 20px;">
-            <div>
-                <h1>Внести пациента в систему</h1>
-            </div>
-            <form class="form" action="{{ url_for('.add_new_patient') }}" method="post">
-                <div class="form-group">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td>
-                                <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Симптомы, диагноз" required>
-                            </td>
-                        </tr>
-                    </table>
-                    <table class="table table-borderless">
-                        <tr>
-                            <td>
-                                <input type="date" class="form-control col-sm-10" name="date_birth" id="Дата рождения" required>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control col-sm-10" name="city" id="city" placeholder="Город" required>
-                            </td>
-                            <td>                                
-                                <input type="text" name="passport" id="passport" class="form-control" placeholder="Паспорт: XX-XX-XXXX">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="text" class="form-control col-sm-6" name="first_name" id="first_name" placeholder="Имя" required>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Фамилия" required>
-                            </td>
-                            <td>                                    
-                                <input type="submit" class="form-control" id="submit" value="Добавить пациента" style="background-color: gainsboro;">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </form>
     </div>
 </div>
 

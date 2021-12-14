@@ -17,10 +17,10 @@
 
 <th style="text-align: center;">
     <th><strong>✔️</strong> {{ session.name }}</th>
-    {{ navlink('exit_page', 'Log out') }}
+    {{ navlink('exit_page', 'Выйти') }}
 </th>
 {% else %}
-    <th style="font-size: larger;">⚠️</th>
+    <th>Гость</th>
     {{ navlink('auth_bp.login', 'Войти') }}
 {% endif %}
 {% endmacro %}
@@ -45,14 +45,21 @@
             <table class="table table-borderless" style="margin-bottom: 30px;">
                 <thead>
                     <tr>
-                        {{ navlink('hospital_bp.department_report', 'Отделения') }}
-                        {{ navlink('hospital_bp.assignment_list', 'Пациенты') }}
-                        {{ navlink('hospital_bp.list_appointments', 'Задачи') }}
-                        {{ navlink('patients_bp.list_patients', 'Распределение пациентов') }}
+                        {{ navlink('main_menu', 'Главное Меню') }}
+                        {{ navlink('hospital_bp.menu', 'Врачу') }}
+                        {{ navlink('patients_bp.menu', 'Регистратору') }}
                         {{ loginshield() }}
                     </tr>
                 </thead>
-            </table>                
+            </table>
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        {% block navbar %}
+                        {%endblock%}
+                    </tr>
+                </thead>
+            </table>      
     </div>
 </div>
     {% block content %}

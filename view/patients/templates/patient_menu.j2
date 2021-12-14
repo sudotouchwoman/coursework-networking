@@ -1,0 +1,31 @@
+{% extends 'menu.j2' %}
+{%block title%}
+Пациенты
+{%endblock%}
+
+{%block styles%}
+    {{ super() }}
+    <link href="{{ url_for('.static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('.static', filename='css/table.css') }}" rel="stylesheet">
+{%endblock%}
+
+{%block icon%}
+<link rel="shortcut icon" type="image/png" href="{{ url_for('.static', filename='img/icon.png') }}">
+{%endblock%}
+
+{%block navbar %}
+{{ navlink('patients_bp.list_patients', 'Распределение пациентов') }}
+{{ navlink('patients_bp.add_new_patient', 'Внести пациентв') }}
+{{ navlink('patients_bp.list_patients', 'Выписка пациентов') }}
+{%endblock%}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <h1>Меню раздела операций с пациентами</h1>
+            <p>Выберите раздел для работы из меню выше</p>
+        </div>
+    </div>
+</div>
+{%endblock%}

@@ -1,31 +1,15 @@
 '''
 Business-process related to patients: add new patient, assign to doctor etc
 '''
-from os import getenv, initgroups
-import logging
-from logging.handlers import TimedRotatingFileHandler
-
 import datetime
 from flask import current_app
 from schema import *
 
+from app import make_logger
 from database.ORM import DataSource, DataModifier
 from . import Validator
 
-log = logging.getLogger(__name__)
-# enable logging routines
-# write log to a file with specified filename (provided via environmental variable)
-# set needed level and optionally disable logging completely
-
-DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/patients.log')
-log.disabled = getenv('LOG_ON', "True") == "False"
-
-log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
-formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
-handler.setFormatter(formatter)
-log.addHandler(handler)
+patients_log = make_logger(__name__, 'logs/patients.log')
 
 DB_CONFIG = current_app.config['DB'].get('hospital')
 SQL_DIR = current_app.config.get('QUERIES')
@@ -36,8 +20,8 @@ class PatientController:
 
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
         if db_settings is None or sql_dir is None:
-            log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
-            log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
+            patients_log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
+            patients_log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
             raise TypeError('Failed to create Hospital  controller')
         self.SETTINGS = db_settings
         self.SQL = sql_dir
@@ -46,10 +30,10 @@ class PatientController:
         self.SOURCE = DataSource(db_settings, sql_dir)
 
 
-    def create_patient_record(self, patient_data: dict) -> None:
+    def create_patient_record(self, patient_data: dict) -> bool:
         '''Creates new record in `patient` table.
         The data is validated before inserting.
-        
+
         Args:
         + `patient_data`: dict containing data to insert into table, should contain the following keys:
             * `first_name`: `str`
@@ -62,14 +46,14 @@ class PatientController:
         Returns: `None`
             '''
 
-        log.debug(msg=f'Creates new patient record')
+        patients_log.debug(msg=f'Creates new patient record')
         if patient_data is None:
-            log.error(f'Patient creation aborted, the data is missing')
-            return
+            patients_log.error(f'Patient creation aborted, the data is missing')
+            return False
 
         if not Validator.validate_patient_data(patient_data): 
-            log.error(msg=f'Validation failed')
-            return
+            patients_log.error(msg=f'Validation failed')
+            return False
 
         patient_data = (
             patient_data['passport'], datetime.date.today().isoformat(),
@@ -79,7 +63,8 @@ class PatientController:
         )
 
         self.MODIFIER.update_table('create-patient-record', *patient_data)
-        log.info(msg=f'Created new patient record')
+        patients_log.info(msg=f'Created new patient record')
+        return True
 
 
     def find_patient(self, patient_id: int) -> dict or None:
@@ -93,7 +78,7 @@ class PatientController:
         Returns: `None` or `dict`
             '''
 
-        log.debug(msg=f'Patient lookup with id {patient_id}')
+        patients_log.debug(msg=f'Patient lookup with id {patient_id}')
         try:
             patient_data = list(self.SOURCE.fetch_results('fetch-patient-byid', patient_id))[0]
             handle_null = lambda s: 'N/A' if s is None or not s else s
@@ -109,7 +94,7 @@ class PatientController:
             }
 
         except (TypeError, IndexError) as e:
-            log.error(msg=f'Error during patient lookup: {e}. Patient id = {patient_id}')
+            patients_log.error(msg=f'Error during patient lookup: {e}. Patient id = {patient_id}')
             return
 
 
@@ -122,12 +107,12 @@ class PatientController:
         Returns: `None` or `Iterable[dict[str, Any]]`
         '''
 
-        log.debug(msg=f'Fetches patient list')
+        patients_log.debug(msg=f'Fetches patient list')
 
         patients = self.SOURCE.fetch_results('fetch-patients')
 
         if patients is None:
-            log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
+            patients_log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
             return
 
         handle_null = lambda s: 'N/A' if s is None or not s else s
@@ -149,7 +134,8 @@ class PatientController:
                         'attending_doctor': ' '.join(row[11:13]),
                         'id_doctor': row[13]
                     }
-        log.info(msg=f'Fetched patient list')
+
+        patients_log.info(msg=f'Fetched patient list')
         return process_rows()
 
 
@@ -165,7 +151,23 @@ class PatientController:
 
         today = datetime.date.today().isoformat()
         self.MODIFIER.update_table('discharge-patient', today, patient_id)
-        log.info(msg=f'Discharged patient with id {patient_id}')
+
+        try:
+            patient_data = self.SOURCE.fetch_results('fetch-patient-byid', patient_id)
+            patient_data = list(patient_data)[0]
+            # extract only FK columns
+            doctor_id, chamber_id = patient_data[10:12]
+
+            self.MODIFIER.update_table('release-chamber', chamber_id)
+            self.MODIFIER.update_table('release-doctor', doctor_id)
+
+            patients_log.info(msg=f'Released reources: chamber with id {chamber_id} and doctor with id {doctor_id}')
+        
+        except (TypeError, IndexError) as e:
+            patients_log.warning(msg=f'Failed to release resources: was this patient assigned anywhere?')    
+            patients_log.warning(msg=f'Exception: {e}')
+
+        patients_log.info(msg=f'Discharged patient with id {patient_id}')
 
 
     def fetch_unassigned(self) -> None or tuple:
@@ -175,13 +177,13 @@ class PatientController:
 
         Returns: `None` or `Iterable[dict[str, Any]]`
         '''
-        
-        log.debug(msg=f'Fetches unassigned patients')
+
+        patients_log.debug(msg=f'Fetches unassigned patients')
 
         patients = self.SOURCE.fetch_results('fetch-newcome-patients')
 
         if patients is None:
-            log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
+            patients_log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
             return
 
         handle_null = lambda s: 'N/A' if s is None or not s else s
@@ -199,7 +201,7 @@ class PatientController:
                         'income_diag': handle_null(row[7]),
                     }
 
-        log.info(msg=f'Fetched unassigned patients')
+        patients_log.info(msg=f'Fetched unassigned patients')
         return process_rows()
 
     def assign_patient(self, patient_id: int, department_id: int) -> dict or None:
@@ -221,12 +223,14 @@ class PatientController:
         Returns: `None` or `dict[str, [int, str]]`
         '''
 
+        patients_log.debug(msg=f'Starts assignment procedure, patient {patient_id}, department {department_id}')
+
         optimal_doctor = self.SOURCE.fetch_results('select-least-loaded', department_id)
         optimal_chamber = self.SOURCE.fetch_results('check-chambers', department_id)
 
         if optimal_chamber is None or optimal_doctor is None:
             # No matching chamber/doctor found
-            log.error(msg=f'Did not found matching doctor/chamber')
+            patients_log.error(msg=f'Did not found matching doctor/chamber')
             return
 
         try:
@@ -238,16 +242,16 @@ class PatientController:
             optimal_doctor, *doctor_initials = optimal_doctor
         
         except (TypeError, IndexError) as e:
-            log.error(msg=f'Error occured while best doctor/chamber lookup: {e}')
+            patients_log.error(msg=f'Error occured while best doctor/chamber lookup: {e}')
             return
 
         # modify all tables
         # should be uncommented to remove debug
         self.MODIFIER.update_table('assign-to-doctor', optimal_doctor, optimal_chamber, patient_id)
-        # self.MODIFIER.update_table('add-patient', optimal_doctor)
-        # self.MODIFIER.update_table('update-chamber', optimal_chamber)
+        self.MODIFIER.update_table('occupy-doctor', optimal_doctor)
+        self.MODIFIER.update_table('occupy-chamber', optimal_chamber)
 
-        log.info(msg=f'Updated table: assigned {patient_id} to {optimal_doctor} ({doctor_initials}), chamber is {optimal_chamber}')
+        patients_log.info(msg=f'Updated table: assigned {patient_id} to {optimal_doctor} ({doctor_initials}), chamber is {optimal_chamber}')
         return {
                 'attending_doctor': ' '.join(doctor_initials),
                 'chamber': optimal_chamber
@@ -270,11 +274,11 @@ class PatientController:
         '''
         
         if appointment_data is None:
-            log.error(f'Task creation aborted, the data is missing')
+            patients_log.error(f'Task creation aborted, the data is missing')
             return
 
         if not Validator.validate_appointment_data(appointment_data): 
-            log.error(msg=f'Validation failed')
+            patients_log.error(msg=f'Validation failed')
             return
 
         appointment_data = (
@@ -283,4 +287,4 @@ class PatientController:
         )
 
         self.MODIFIER.update_table('create-appointment-record', *appointment_data)
-        log.info(msg=f'Created new task record')
+        patients_log.info(msg=f'Created new task record')

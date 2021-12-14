@@ -1,7 +1,3 @@
-import json
-from os import getenv
-import logging
-from logging.handlers import TimedRotatingFileHandler
 from json import loads, dumps
 
 from flask import (
@@ -10,27 +6,14 @@ from flask import (
     render_template,
     redirect,
     url_for,
-    session
 )
 
+from app import make_logger
 from app.policies import requires_login, requires_permission
-from controller.hospital import HospitalController
 from controller.patients import PatientController
+from controller.hospital import HospitalController
 
-log = logging.getLogger(__name__)
-# enable logging routines
-# write log to a file with specified filename (provided via environmental variable)
-# set needed level and optionally disable logging completely
-
-DEBUGLEVEL = getenv('DEBUG_LEVEL','DEBUG')
-LOGFILE = getenv('APP_LOGFILE_NAME', 'logs/patients.log')
-log.disabled = getenv('LOG_ON', "True") == "False"
-
-log.setLevel(getattr(logging, DEBUGLEVEL))
-handler = TimedRotatingFileHandler(filename=f'{LOGFILE}', encoding='utf-8', when='h', interval=5, backupCount=0)
-formatter = logging.Formatter('[%(asctime)s]::[%(levelname)s]::[%(name)s]::%(message)s', '%D # %H:%M:%S')
-handler.setFormatter(formatter)
-log.addHandler(handler)
+patients_view = make_logger(__name__, 'logs/patients.log')
 
 patients_bp = Blueprint(
     'patients_bp',
@@ -42,31 +25,36 @@ patients_bp = Blueprint(
 @requires_login
 @requires_permission
 def menu():
-    log.info(msg=f'Renders menu page')
-    return render_template('patient_menu.html')
+    patients_view.info(msg=f'Renders patients menu page')
+    return render_template('patient_menu.j2')
 
 
-@patients_bp.route('/add', methods=['POST'])
+@patients_bp.route('/add', methods=['POST', 'GET'])
 @requires_login
 @requires_permission
 def add_new_patient():
+    patients_view.info(msg=f'Renders page for new patient record creation')
+
+    if request.method == 'GET':
+        return render_template('patient_create.j2')
+
     attributes = ('first_name', 'passport', 'second_name', 'date_birth', 'city', 'initial_diagnosis')
     new_patient_data = { attribute: request.values.get(attribute) for attribute in attributes }
 
-    PatientController().create_patient_record(new_patient_data)
-    return redirect(url_for('.list_patients'))
+    status = PatientController().create_patient_record(new_patient_data)
+    return render_template('patient_create.j2', status=True, success=status)
 
 
 @patients_bp.route('/list', methods=['POST', 'GET'])
 @requires_login
 @requires_permission
 def list_patients():
-    log.info(msg=f'Renders patient list')
+    patients_view.info(msg=f'Renders patient list')
 
     patients = PatientController().fetch_unassigned()
 
     if patients is None:
-        log.warning(msg=f'Renders empty page bc fetched data is empty')
+        patients_view.warning(msg=f'Renders empty page bc fetched data is empty')
         return render_template('hospital_empty.j2')
     
     if request.method == 'GET':
@@ -100,8 +88,11 @@ def list_patients():
 @requires_login
 @requires_permission
 def assign_to_department():
+    patients_view.info(msg=f'Recieved request to assign patient into department')
+
     to_assign = request.values.get('patient_id')
     where_to_assign = request.values.get('department_id')
 
     assign_response = PatientController().assign_patient(to_assign, where_to_assign)
+    patients_view.debug(msg=f'Redirects back to patient list')
     return redirect(url_for('.list_patients', assign_response=dumps(assign_response)))

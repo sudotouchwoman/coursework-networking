@@ -1,1 +1,6 @@
-SELECT doctor.first_name, doctor.second_name from doctor WHERE id_doctor = %s;
+SELECT 
+doctor.first_name,
+doctor.second_name
+FROM doctor
+WHERE 1
+    AND id_doctor = %s

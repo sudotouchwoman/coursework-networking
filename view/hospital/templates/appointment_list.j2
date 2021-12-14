@@ -1,17 +1,7 @@
-{% extends 'menu.j2' %}
+{% extends 'hospital_menu.j2' %}
 
 {%block title%}
-Госпиталь
-{%endblock%}
-
-{%block styles%}
-    {{ super() }}
-    <link href="{{ url_for('hospital_bp.static', filename='css/home.css') }}" rel="stylesheet">
-    <link href="{{ url_for('hospital_bp.static', filename='css/table.css') }}" rel="stylesheet">
-{%endblock%}
-
-{%block icon%}
-<link rel="shortcut icon" type="image/png" href="{{ url_for('hospital_bp.static', filename='img/icon.png') }}">
+Задачи
 {%endblock%}
 
 {%block content%}
