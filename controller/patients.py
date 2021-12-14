@@ -176,7 +176,7 @@ class PatientController:
         return process_rows()
 
 
-    def discharge_patient(self, patient_id: int) -> None:
+    def discharge_patient(self, patient_id: int, doctor_id: int, chamber_id: int) -> None:
         '''Discharge patient, i.e. set the `outcome_date` column value to today.
 
         Args:
@@ -187,23 +187,12 @@ class PatientController:
         '''
 
         today = datetime.date.today().isoformat()
+
         self.MODIFIER.update_table('discharge-patient', today, patient_id)
+        self.MODIFIER.update_table('release-chamber', chamber_id)
+        self.MODIFIER.update_table('release-doctor', doctor_id)
 
-        try:
-            patient_data = self.SOURCE.fetch_results('fetch-patient-byid', patient_id)
-            patient_data = list(patient_data)[0]
-            # extract only FK columns
-            doctor_id, chamber_id = patient_data[10:12]
-
-            self.MODIFIER.update_table('release-chamber', chamber_id)
-            self.MODIFIER.update_table('release-doctor', doctor_id)
-
-            patients_log.info(msg=f'Released reources: chamber with id {chamber_id} and doctor with id {doctor_id}')
-        
-        except (TypeError, IndexError) as e:
-            patients_log.warning(msg=f'Failed to release resources: was this patient assigned anywhere?')    
-            patients_log.warning(msg=f'Exception: {e}')
-
+        patients_log.info(msg=f'Released reources: chamber with id {chamber_id} and doctor with id {doctor_id}')
         patients_log.info(msg=f'Discharged patient with id {patient_id}')
 
 

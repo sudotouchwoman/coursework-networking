@@ -56,7 +56,10 @@ def list_dischargable():
         return render_template('patient_discharge.j2', with_diag=with_diag)
 
     to_remove_id = request.values.get('to_remove_id')
-    PatientController().discharge_patient(to_remove_id)
+    attending_doc_id = request.values.get('attending_doctor')
+    chamber_id = request.values.get('chamber')
+
+    PatientController().discharge_patient(to_remove_id, attending_doc_id, chamber_id)
     with_diag = PatientController().fetch_dischargable_patients()
 
     return render_template('patient_discharge.j2', show_alert=True, with_diag=with_diag)

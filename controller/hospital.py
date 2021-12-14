@@ -41,7 +41,7 @@ class HospitalController:
                     'title': row[1]
                 }
 
-        hospital_log.debug(msg=f'Fetched department list')
+        hospital_log.info(msg=f'Fetched department list')
         return process_rows()
 
 
