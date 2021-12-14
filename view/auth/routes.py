@@ -52,7 +52,7 @@ def login():
     session['name'] = user_data['name']
     
     auth_view.info(msg=f'{user_data["name"]} logged in')
-    return redirect(url_for('menu'))
+    return redirect(url_for('main_menu'))
 
 
 @auth_bp.route('/permission', methods=['GET'])

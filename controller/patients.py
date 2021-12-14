@@ -138,6 +138,43 @@ class PatientController:
         patients_log.info(msg=f'Fetched patient list')
         return process_rows()
 
+    
+    def fetch_dischargable_patients(self) -> None or tuple:
+        patients_log.debug(msg=f'Fetches list of dischargable patients')
+
+        patients = self.SOURCE.fetch_results('fetch-dischargable')
+
+        if patients is None:
+            patients_log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
+            return
+
+        handle_null = lambda s: 'N/A' if s is None or not s else s
+
+        def process_rows():
+            for i, row in enumerate(patients, start=1):
+                    yield {
+                        'num': i,
+                        'id': row[0],
+                        'passport': handle_null(row[1]),
+
+                        'income_date': handle_null(row[2]),
+                        'birth_date': handle_null(row[3]),
+
+                        'name': ' '.join(row[4:6]),
+
+                        'city': handle_null(row[6]),
+
+                        'income_diag': handle_null(row[7]),
+                        'outcome_diag': handle_null(row[8]),
+
+                        'id_doctor': row[9],
+                        'chamber': handle_null(row[10]),
+                        'attending_doctor': ' '.join(row[11:13]),
+                    }
+
+        patients_log.info(msg=f'Fetched dischargable list')
+        return process_rows()
+
 
     def discharge_patient(self, patient_id: int) -> None:
         '''Discharge patient, i.e. set the `outcome_date` column value to today.

@@ -1,0 +1,56 @@
+{% extends 'patient_menu.j2' %}
+
+{%block content%}
+
+<div class="container" id="body">
+    <div class="row" style="margin-top: 20px;">
+        <div>
+            <h1>Произвести выписку из госпиталя</h1>
+            <p>Для того, чтобы выписать пациента из госпиталя, нажмите на соответствующую кнопку </p>
+        </div>
+        <form class="form" action="" method="post">
+            <div class="form-group">
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <input class="form-control" type="text" name="initial_diagnosis" id="initial_diagnosis" placeholder="Симптомы, диагноз">
+                        </td>
+                    </tr>
+                </table>
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <input type="date" class="form-control col-sm-10" name="date_birth" required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control col-sm-10" name="city" id="city" placeholder="Город" required>
+                        </td>
+                        <td>                                
+                            <input type="text" name="passport" id="passport" class="form-control" placeholder="Паспорт: XX-XX-XXXX">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control col-sm-6" name="first_name" id="first_name" placeholder="Имя" required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control col-sm-6" name="second_name" id="second_name" placeholder="Фамилия" required>
+                        </td>
+                        <td>                                    
+                            <input type="submit" class="form-control" id="submit" value="Добавить пациента" style="background-color: gainsboro;">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+        {% if show_alert %}
+        <div class="row">
+            <div class="alert alert-success">
+                <strong>Пациент был успешно выписан!</strong>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

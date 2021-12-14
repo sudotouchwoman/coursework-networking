@@ -45,6 +45,23 @@ def add_new_patient():
     return render_template('patient_create.j2', status=True, success=status)
 
 
+@patients_bp.route('/discharge', methods=['POST', 'GET'])
+@requires_login
+@requires_permission
+def list_dischargable():
+    patients_view.info(msg=f'Renders page for patient discharging')
+
+    if request.method == 'GET':
+        with_diag = PatientController().fetch_dischargable_patients()
+        return render_template('patient_discharge.j2', with_diag=with_diag)
+
+    to_remove_id = request.values.get('to_remove_id')
+    PatientController().discharge_patient(to_remove_id)
+    with_diag = PatientController().fetch_dischargable_patients()
+
+    return render_template('patient_discharge.j2', show_alert=True, with_diag=with_diag)
+
+
 @patients_bp.route('/list', methods=['POST', 'GET'])
 @requires_login
 @requires_permission
@@ -56,7 +73,7 @@ def list_patients():
     if patients is None:
         patients_view.warning(msg=f'Renders empty page bc fetched data is empty')
         return render_template('hospital_empty.j2')
-    
+
     if request.method == 'GET':
         
         if 'assign_response' not in request.values:
