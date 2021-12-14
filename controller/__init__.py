@@ -45,18 +45,18 @@ class Validator(ABC):
         }
 
     APPOINTMENT_INSERT_TEMPLATE = {
-        'asignee': And(str, lambda s: s.isalpha()),
-        'patient': And(str, lambda s: s.isalpha()),
+        'asignee': And(str, lambda s: s.isdigit()),
+        'patient': And(str, lambda s: s.isdigit()),
         Optional('about'): str,
         Optional('scheduled'): And(str, lambda d: datetime.datetime.strptime(d, '%Y-%m-%d').date() >= datetime.date.today())
     }
 
     APPOINTMENT_UPDATE_TEMPLATE = {
-        'is_final': bool,
+        'is_final': Or(None, 'on'),
         'about': str,
-        'schedule_to': Or(And(datetime.datetime, lambda s: s.date() >= datetime.date.today()), None),
-        'appointment_id': int,
-        'patient_id': int
+        'schedule_to': Or(And(str, lambda s: datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M').date() >= datetime.date.today()), ''),
+        'appointment_id': And(str, lambda s: s.isdigit()),
+        'patient_id': And(str, lambda s: s.isdigit())
     }
 
     DIAGNOSIS_METADATA_TEMPLATE = {

@@ -245,13 +245,17 @@ class HospitalController:
         comment, appointment_id = context['about'], context['appointment_id']
         patient_id = context['patient_id']
 
-        if is_final:
+
+        if is_final is not None:
             self.MODIFIER.update_table('set-diagnosis', comment, patient_id)
+            self.update_appointment('complete', appointment_id)
             hospital_log.info(msg=f'Have set final diagnosis to {patient_id}')
             return
 
-        if schedule_to is None: schedule_to = \
+        if not schedule_to: schedule_to = \
             datetime.datetime().today() + datetime.timedelta(days=7)
+        else:
+            schedule_to = datetime.datetime.strptime(schedule_to, '%Y-%m-%dT%H:%M')
 
-        self.MODIFIER.update_table('schedule-appointment', schedule_to, comment, appointment_id)
-        hospital_log.info(msg=f'Scheduled {appointment_id} to {schedule_to.iso_string()}')
+        self.MODIFIER.update_table('schedule-appointment', comment, schedule_to, appointment_id)
+        hospital_log.info(msg=f'Scheduled {appointment_id} to {schedule_to}')
