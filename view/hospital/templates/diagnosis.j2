@@ -1,0 +1,50 @@
+{% extends 'hospital_menu.j2' %}
+
+{%block title%}
+Результаты приема
+{%endblock%}
+
+{%block content%}
+
+<div class="container" id="body">
+    <div class="row">
+        <div class="col-md-12">
+            {% if metadata %}
+            <h2>Заключение по результатам приема</h2>
+            <p>Вы можете сразу назначить повторный прием на выбранную дату.
+                Чтобы пометить заключение как окончательное, поставьте галочку в поле "окончательный диагноз".
+                В таком случае пациент будет направлен на выписку.
+            </p>
+            <form action="" method="post">
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <input type="text" name="about" class="form-control" id="about" placeholder="Введите медицинское заключение" required>
+                        </td>
+                    </tr>
+                </table>
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <input type="datetime-local" name="schedule_to" class="form-control" id="schedule_to">
+                        </td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" name="is_final" type="checkbox" id="is_final">
+                                <label class="form-check-label" for="is_final">Допустить к выписке</label>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="submit" class="form-control" value="Заключить" style="background-color: gainsboro;">
+                        </td>
+                    </tr>
+                </table>
+                <input type="hidden" name="patient_id" value="{{ metadata['patient_id'] }}">
+                <input type="hidden" name="appointment_id" value="{{ metadata['appointment_id'] }}">
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

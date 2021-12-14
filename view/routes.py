@@ -19,7 +19,8 @@ app = Flask(
     template_folder='templates/')
 
 @app.errorhandler(404)
-def page_not_found_redirect(e):
+@app.route('/404')
+def page_not_found_redirect(e=None):
     return render_template('404.j2')
 
 @app.route('/exit', methods=['GET'])

@@ -22,5 +22,5 @@ FROM
     patient JOIN doctor
     ON attending_doctor = doctor.id_doctor
 WHERE 1
-    AND patient.outcome_date IS NULL
+    AND patient.date_outcome IS NULL
     AND patient.outcome_diagnosis IS NOT NULL;

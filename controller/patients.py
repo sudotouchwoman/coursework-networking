@@ -268,7 +268,7 @@ class PatientController:
             optimal_doctor, *doctor_initials = optimal_doctor
         
         except (TypeError, IndexError) as e:
-            patients_log.error(msg=f'Error occured while best doctor/chamber lookup: {e}')
+            patients_log.error(msg=f'Error occured during best doctor/chamber lookup: {e}')
             return
 
         # modify all tables

@@ -7,6 +7,7 @@ from flask import current_app
 
 from database.ORM import DataSource, DataModifier
 from app import make_logger
+from . import Validator
 
 hospital_log = make_logger(__name__, 'logs/hospital.log')
 
@@ -213,12 +214,12 @@ class HospitalController:
                         'status_code': row[5]
                     }
 
-
-        hospital_log.debug(msg=f'Successfully fetched appointments')
+        hospital_log.info(msg=f'Successfully fetched appointments')
         return process_rows()
 
 
     def update_appointment(self, action: str, appointment_id) -> None:
+        hospital_log.debug(msg=f'Updates appointment status')
         options = {
             'complete': 3,
             'accept': 1,
@@ -231,5 +232,26 @@ class HospitalController:
 
         self.MODIFIER\
             .update_table('update-appointment', options[action], appointment_id)
-        
 
+
+    def schedule_appointment(self, context: dict) -> None:
+        hospital_log.debug(msg=f'Schedules appointment')
+
+        if not Validator.validate_appointment_schedule(context):
+            hospital_log.error(msg=f'Failed to schedule appointment: validation not passed: {context}')
+            return
+
+        is_final, schedule_to = context['is_final'],context['schedule_to']
+        comment, appointment_id = context['about'], context['appointment_id']
+        patient_id = context['patient_id']
+
+        if is_final:
+            self.MODIFIER.update_table('set-diagnosis', comment, patient_id)
+            hospital_log.info(msg=f'Have set final diagnosis to {patient_id}')
+            return
+
+        if schedule_to is None: schedule_to = \
+            datetime.datetime().today() + datetime.timedelta(days=7)
+
+        self.MODIFIER.update_table('schedule-appointment', schedule_to, comment, appointment_id)
+        hospital_log.info(msg=f'Scheduled {appointment_id} to {schedule_to.iso_string()}')

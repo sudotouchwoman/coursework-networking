@@ -1,5 +1,6 @@
-from json import loads
+from json import dumps, loads
 from json.decoder import JSONDecodeError
+from logging import fatal
 
 from flask import (
     Blueprint,
@@ -13,6 +14,7 @@ from flask import (
 from app import make_logger
 from app.policies import requires_login, requires_permission
 from controller.hospital import HospitalController
+from controller import Validator
 
 view_logger = make_logger(__name__, 'logs/hospital.log')
 
@@ -44,21 +46,46 @@ def assignment_list():
 @requires_permission
 def list_appointments():
     view_logger.info(msg=f'Renders appointment list')
+
     if request.method == 'GET':
+
         doctor_id = session['id']
         appointments = HospitalController().filter_appointments(by='doctor', value=doctor_id)
 
-        if appointments is None: return render_template('appointment_list.j2')
-
         return render_template(
             'appointment_list.j2',
-            appointments=appointments
+            appointments=appointments,
         )
 
-    if 'action' not in request.values.keys(): return redirect(url_for('page_not_found_redirect'))
-    if 'appointment_id' not in request.values.keys(): return redirect(url_for('page_not_found_redirect'))
+    # check the presence of form attributes, redirect to 404 page if unsuccessful
+    if not Validator.validate_query_params(request.values.to_dict(), ('action', 'appointment_id')):
+        return redirect(url_for('page_not_found_redirect'))
 
     HospitalController().update_appointment(request.values['action'], request.values['appointment_id'])
+    return redirect(url_for('.list_appointments'))
+
+
+@hospital_bp.route('/set-diagnosis', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
+def diagnosis():
+
+    if request.method == 'GET':
+
+        request_params = ('patient_id', 'appointment_id')
+        metadata = { param: request.args.get(param) for param in request_params}
+
+        if not Validator.validate_diagnosis_metadata(metadata):
+            return redirect(url_for('page_not_found_redirect'))
+
+        return render_template(
+            'diagnosis.j2',
+            metadata=metadata
+        )
+
+    request_params = ('is_final', 'about', 'schedule_to', 'patient_id', 'appointment_id')
+    schedule = { param: request.values.get(param) for param in request_params }
+    HospitalController().schedule_appointment(schedule)
     return redirect(url_for('.list_appointments'))
 
 
@@ -80,7 +107,7 @@ def department_report():
         department_data = loads(department_data)
         d_id = department_data['id']
         d_title = department_data['title']
-    
+
     except (JSONDecodeError, KeyError):
         view_logger.error(msg=f'Failed to collect request data\
             expected title and id, found: {department_data}')
