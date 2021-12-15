@@ -14,18 +14,23 @@
 {%endblock%}
 
 {%block navbar %}
-{{ navlink('patients_bp.list_patients', 'Распределение пациентов') }}
-{{ navlink('patients_bp.add_new_patient', 'Внести пациентв') }}
-{{ navlink('patients_bp.list_dischargable', 'Выписка пациентов') }}
+{{ navlink('.list_patients', 'Распределение пациентов') }}
+{{ navlink('.add_new_patient', 'Внести пациентв') }}
+{{ navlink('.list_dischargable', 'Выписка пациентов') }}
+{{ navlink('.department_report', 'Отчет') }}
 {%endblock%}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="alert alert-info">
-            <h1>Меню раздела операций с пациентами</h1>
-            <p>Выберите раздел для работы из меню выше</p>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <div class="alert alert-info" style="margin-top: 30%;">
+                <h1>Раздел регистратуры</h1>
+                <p>Выберите раздел для работы из меню выше</p>
+            </div>
         </div>
+        <div class="col-md-3"></div>
     </div>
 </div>
 {%endblock%}

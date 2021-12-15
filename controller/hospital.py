@@ -48,17 +48,17 @@ class HospitalController:
 
     def make_department_report(self, department_id: int, department_name: str = 'N/A') -> None or tuple:
         hospital_log.debug(msg=f'Produces report for selected department {department_id}')
-        
-        collected = self.SOURCE\
-            .fetch_results('department-report', department_id)
 
-        if collected is None:
-            hospital_log.error(msg=f'Failed to create report: is SQL server running? See db logs for more detailed info')
+        chambers_info = self.SOURCE.fetch_results('department-report', department_id)
+        doctors_info = self.SOURCE.fetch_results('department-doctors', department_id)
+
+        if not chambers_info or not doctors_info:
+            hospital_log.error(msg=f'Failed to create report:\
+             is SQL server running? See db logs for more detailed info')
             return
-        
-        department_head = self.SOURCE\
-            .fetch_results('department-head', department_id)
-        
+
+        department_head = self.SOURCE.fetch_results('department-head', department_id)
+
         try:
             department_head = list(department_head)[0]
         except (TypeError, IndexError):
@@ -66,8 +66,8 @@ class HospitalController:
                 initials of department head. Make sure the query is OK')
             department_head = 'N/A'
 
-        def process_rows():
-            for i, row in enumerate(collected, start=1):
+        def process_chambers():
+            for i, row in enumerate(chambers_info, start=1):
                 try:
                     yield {
                         'num': i,
@@ -75,15 +75,31 @@ class HospitalController:
                         'capacity': row[1],
                         'occupied': row[2],
                     }
+
                 except IndexError:
                     hospital_log.warning(msg=f'Index error while making department report\
                         make sure the SQL query is correct')
                     continue
-        
+
+        def process_doctors():
+            for i, row in enumerate(doctors_info, start=1):
+                try:
+                    yield {
+                        'num': i,
+                        'id': row[0],
+                        'name': ' '.join(row[1:3]),
+                        'assigned': row[3]
+                    }
+                
+                except IndexError:
+                    hospital_log.warning(msg=f'Index error while making department report')
+                    continue
+
         return {
             'title': department_name,
             'head': ' '.join(department_head),
-            'chambers': process_rows()
+            'chambers': process_chambers(),
+            'doctors': process_doctors()
         }
 
 
@@ -92,7 +108,7 @@ class HospitalController:
         hospital_log.debug(msg=f'Fetches list of doctors')
         selected = self.SOURCE.fetch_results('select-doctorlist')
 
-        if selected is None:
+        if not selected:
             hospital_log.error(msg=f'Failed to fetch: is SQL server running? See db logs for more detailed info')
             return
 
@@ -112,7 +128,7 @@ class HospitalController:
         hospital_log.debug(msg=f'Collects assignees for {doctor}')
         selected = self.SOURCE.fetch_results('fetch-patients-filterby-doctor', doctor)
 
-        if selected is None:
+        if not selected:
             hospital_log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
             return
 
@@ -135,8 +151,7 @@ class HospitalController:
 
     def get_doctor_name(self, id_doctor: int) -> str or None:
         name = self.SOURCE.fetch_results('select-doctor-initials', id_doctor)
-        if name is None: return
-        return ' '.join(name[0])
+        return ' '.join(name[0]) if name else None
 
 
     def check_chambers_capacity(self) -> int or None:
@@ -146,7 +161,7 @@ class HospitalController:
         try:
             chamber_data = list(chamber_data)[0]
         except IndexError:
-            hospital_log.error(msg=f'Chambers must be full')
+            hospital_log.warning(msg=f'Chambers must be full')
             return
         except TypeError:
             hospital_log.error(msg=f'Error occured during db connection')
@@ -167,14 +182,14 @@ class HospitalController:
             hospital_log.error(msg=f'Invalid filter: {by}')
             return
 
-        filtered = self.SOURCE\
-            .fetch_results(options[by], value)
+        filtered = self.SOURCE.fetch_results(options[by], value)
 
-        if filtered is None:
+        if not filtered:
             hospital_log.warning(msg=f'Failed to fetch appointments satisfying {by}={value}')
             return
 
-        handle_null = lambda s: 'N/A' if s is None or not s else s
+        handle_null = lambda s: s if s else 'N/A'
+
         def handle_status_code(s: int) -> str:
             if s == 0: return u'Новый запрос'
             if s == 1: return u'Принят'
@@ -192,7 +207,7 @@ class HospitalController:
                     yield {
                         'num': i,
                         'id': row[0],
-                        'asignee': row[1],
+                        'assignee': row[1],
                         'patient_id': row[2],
                         'patient': ' '.join(initials[5:7]),
                         'about': handle_null(row[4]),
@@ -205,7 +220,7 @@ class HospitalController:
                     yield {
                         'num': i,
                         'id': row[0],
-                        'asignee': row[1],
+                        'assignee': row[1],
                         'patient_id': row[2],
                         'patient': 'N/A',
                         'about': handle_null(row[4]),
@@ -246,7 +261,7 @@ class HospitalController:
         patient_id = context['patient_id']
 
 
-        if is_final is not None:
+        if is_final:
             self.MODIFIER.update_table('set-diagnosis', comment, patient_id)
             self.update_appointment('complete', appointment_id)
             hospital_log.info(msg=f'Have set final diagnosis to {patient_id}')

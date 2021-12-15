@@ -15,7 +15,9 @@ DB_CONFIG = current_app.config['DB'].get('hospital')
 SQL_DIR = current_app.config.get('QUERIES')
 
 class PatientController:
-    '''Controller for patient routines. The methods contain
+    '''Controller for patient routines.
+    The methods contain patient creation, assignment and discharging.
+    The system is also capable of appointment creation for attending doctors
     '''
 
     def __init__(self, db_settings: dict = DB_CONFIG, sql_dir: str = SQL_DIR) -> None:
@@ -23,8 +25,6 @@ class PatientController:
             patients_log.fatal(msg=f'Recieved this: {db_settings} and {sql_dir}')
             patients_log.fatal(msg=f'Failed to create Hospital controller! Is `hospital` in db config?')
             raise TypeError('Failed to create Hospital  controller')
-        self.SETTINGS = db_settings
-        self.SQL = sql_dir
 
         self.MODIFIER = DataModifier(db_settings, sql_dir)
         self.SOURCE = DataSource(db_settings, sql_dir)
@@ -81,7 +81,7 @@ class PatientController:
         patients_log.debug(msg=f'Patient lookup with id {patient_id}')
         try:
             patient_data = list(self.SOURCE.fetch_results('fetch-patient-byid', patient_id))[0]
-            handle_null = lambda s: 'N/A' if s is None or not s else s
+            handle_null = lambda s: s if s else 'N/A'
 
             return {
                 'id': patient_data[0],
@@ -115,7 +115,7 @@ class PatientController:
             patients_log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
             return
 
-        handle_null = lambda s: 'N/A' if s is None or not s else s
+        handle_null = lambda s: s if s else 'N/A'
 
         def process_rows():
             for i, row in enumerate(patients, start=1):
@@ -148,7 +148,7 @@ class PatientController:
             patients_log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
             return
 
-        handle_null = lambda s: 'N/A' if s is None or not s else s
+        handle_null = lambda s: s if s else 'N/A'
 
         def process_rows():
             for i, row in enumerate(patients, start=1):
@@ -212,7 +212,7 @@ class PatientController:
             patients_log.warning(msg=f'Failed to fetch patients. Is SQL Server running?')
             return
 
-        handle_null = lambda s: 'N/A' if s is None or not s else s
+        handle_null = lambda s: s if s else 'N/A'
 
         def process_rows():
             for i, row in enumerate(patients, start=1):
@@ -230,6 +230,7 @@ class PatientController:
         patients_log.info(msg=f'Fetched unassigned patients')
         return process_rows()
 
+
     def assign_patient(self, patient_id: int, department_id: int) -> dict or None:
         '''Try to assign given patient to the provided `department_id`. This said, matching
         doctor and chamber with free space should be found. First, try to find doctor and chamber
@@ -240,6 +241,9 @@ class PatientController:
 
         If the procedure is successful (this said, optimal doctor and chamber were found), return `dict`
         containing attending doctor initials and chamber id.
+
+        After successful assignment the system would automatically create new appointment for
+        the newcome patient. This will appear in the corresponding section in doctor UI
 
         Args:
 
@@ -278,6 +282,16 @@ class PatientController:
         self.MODIFIER.update_table('occupy-chamber', optimal_chamber)
 
         patients_log.info(msg=f'Updated table: assigned {patient_id} to {optimal_doctor} ({doctor_initials}), chamber is {optimal_chamber}')
+        
+        new_appointment_data = {
+            'assignee': str(optimal_doctor),
+            'patient': str(patient_id),
+            'about': 'Первичный прием',
+            'scheduled': datetime.datetime.today() + datetime.timedelta(days=1)
+        }
+
+        self.create_appointment_record(new_appointment_data)
+        
         return {
                 'attending_doctor': ' '.join(doctor_initials),
                 'chamber': optimal_chamber
@@ -291,14 +305,15 @@ class PatientController:
         Args:
 
         * `appointment_data`: `dict`, should contain the following keys:
-            * `asignee`: `str`, doctor id
+            * `assignee`: `str`, doctor id
             * `patient`: `str`, patient id
             * `about` (optional): `str`
-            * `scheduled` (optional): `str`
+            * `scheduled` (optional): `datetime`
 
         Returns: `None`
         '''
-        
+        patients_log.debug(msg=f'Creates new doctor task record')
+
         if appointment_data is None:
             patients_log.error(f'Task creation aborted, the data is missing')
             return
@@ -308,7 +323,7 @@ class PatientController:
             return
 
         appointment_data = (
-            appointment_data['asignee'], appointment_data['patient'],
+            appointment_data['assignee'], appointment_data['patient'],
             appointment_data.get('scheduled'), appointment_data.get('about')
         )
 

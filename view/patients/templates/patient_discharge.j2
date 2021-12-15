@@ -42,7 +42,7 @@
                     <td>
                         <form action="" class="form" method="post">
                             <input type="hidden" name="to_remove_id" value="{{patient['id']}}">
-                            <input type="hidden" name="attending_doctor" value="{{patient['attending_doctor']}}">
+                            <input type="hidden" name="attending_doctor" value="{{patient['id_doctor']}}">
                             <input type="hidden" name="occupied_chamber" value="{{patient['chamber']}}">
                             <input type="submit" value="Выписать" class="form-control" style="background-color: gainsboro;">
                         </form>

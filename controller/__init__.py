@@ -45,10 +45,10 @@ class Validator(ABC):
         }
 
     APPOINTMENT_INSERT_TEMPLATE = {
-        'asignee': And(str, lambda s: s.isdigit()),
+        'assignee': And(str, lambda s: s.isdigit()),
         'patient': And(str, lambda s: s.isdigit()),
         Optional('about'): str,
-        Optional('scheduled'): And(str, lambda d: datetime.datetime.strptime(d, '%Y-%m-%d').date() >= datetime.date.today())
+        Optional('scheduled'): And(datetime.datetime, lambda d: d >= datetime.date.today())
     }
 
     APPOINTMENT_UPDATE_TEMPLATE = {

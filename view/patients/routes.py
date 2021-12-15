@@ -1,4 +1,5 @@
 from json import loads, dumps
+from json.decoder import JSONDecodeError
 
 from flask import (
     Blueprint,
@@ -57,7 +58,7 @@ def list_dischargable():
 
     to_remove_id = request.values.get('to_remove_id')
     attending_doc_id = request.values.get('attending_doctor')
-    chamber_id = request.values.get('chamber')
+    chamber_id = request.values.get('occupied_chamber')
 
     PatientController().discharge_patient(to_remove_id, attending_doc_id, chamber_id)
     with_diag = PatientController().fetch_dischargable_patients()
@@ -116,3 +117,31 @@ def assign_to_department():
     assign_response = PatientController().assign_patient(to_assign, where_to_assign)
     patients_view.debug(msg=f'Redirects back to patient list')
     return redirect(url_for('.list_patients', assign_response=dumps(assign_response)))
+
+
+@patients_bp.route('/department', methods=['GET', 'POST'])
+@requires_login
+@requires_permission
+def department_report():
+    patients_view.info(msg=f'Renders department report')
+    departments = HospitalController().get_department_list()
+    
+    if request.method == 'GET':
+        # render as default
+        return render_template('hospital_department.j2', departments=departments)
+
+    department_data = request.values.get('selected_department')
+    try:
+        # try to decode option from the request
+        # redirect to 404 handler if something goes wrong
+        department_data = loads(department_data)
+        d_id = department_data['id']
+        d_title = department_data['title']
+
+    except (JSONDecodeError, KeyError):
+        patients_view.error(msg=f'Failed to collect request data\
+            expected title and id, found: {department_data}')
+        return redirect(url_for('page_not_found_redirect'))
+
+    report = HospitalController().make_department_report(d_id, d_title)
+    return render_template('hospital_department.j2', departments=departments, report=report)

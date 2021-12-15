@@ -1,6 +1,3 @@
-from json import dumps, loads
-from json.decoder import JSONDecodeError
-from logging import fatal
 
 from flask import (
     Blueprint,
@@ -87,32 +84,4 @@ def diagnosis():
     schedule = { param: request.values.get(param) for param in request_params }
     HospitalController().schedule_appointment(schedule)
     return redirect(url_for('.list_appointments'))
-
-
-@hospital_bp.route('/department', methods=['GET', 'POST'])
-@requires_login
-@requires_permission
-def department_report():
-    view_logger.info(msg=f'Renders department report')
-    departments = HospitalController().get_department_list()
-    
-    if request.method == 'GET':
-        # render as default
-        return render_template('hospital_department.j2', departments=departments)
-
-    department_data = request.values.get('selected_department')
-    try:
-        # try to decode option from the request
-        # redirect to 404 handler if something goes wrong
-        department_data = loads(department_data)
-        d_id = department_data['id']
-        d_title = department_data['title']
-
-    except (JSONDecodeError, KeyError):
-        view_logger.error(msg=f'Failed to collect request data\
-            expected title and id, found: {department_data}')
-        return redirect(url_for('page_not_found_redirect'))
-
-    report = HospitalController().make_department_report(d_id, d_title)
-    return render_template('hospital_department.j2', departments=departments, report=report)
 

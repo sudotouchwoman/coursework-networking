@@ -1,4 +1,4 @@
-{% extends 'hospital_menu.j2' %}
+{% extends 'patient_menu.j2' %}
 
 {% block title %}
 Отчет об отделениях
@@ -6,12 +6,10 @@
 
 {% block content %}
 <div class="container">
-    <div class="col-md-12">
-        <h1>Отделения</h1>
-    </div>
+    <h1>Отделения</h1>
     {% if departments %}
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <form action="" method="post" class="form-horizontal">
                 <table class="table table-borderless">
                     <tr>
@@ -39,11 +37,12 @@
                 </table>
             </form>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-8">
         {% if report %}
-            <h3>{{ report['title'] }}. Заведующий отделением:{{ report['head'] }}</h3>
+            <h3>{{ report['title'] }}. Заведующий отделением: {{ report['head'] }}</h3>
         {% else %}
-            <p>Чтобы получить информацию о заведующем отделением и палатах, пожалуйста, выберите отделение в выпадающем списке</p>
+            <p>Чтобы получить информацию о заведующем отделением и палатах,
+                пожалуйста, выберите отделение в выпадающем списке.</p>
         {% endif %}
         </div>
     </div>
@@ -54,27 +53,47 @@
     {% endif %}
     {% if report %}
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <table class="table table-striped">
                     <thead>
                         <tr style="font-weight: bold;">
-                            <td style="font-weight: bold;">&#8470;</td>
-                            <td style="font-weight: bold;">Тип палаты</td>
-                            <td style="font-weight: bold;">Общее число мест</td>
-                            <td style="font-weight: bold;">Занято мест</td>
+                            <td>&#8470;</td>
+                            <td>Тип палаты</td>
+                            <td>Общее число мест</td>
+                            <td>Занято мест</td>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for record in report['chambers'] %}
+                    {% for chamber in report['chambers'] %}
                         <tr>
-                            <td>{{ record['num'] }}</td>
-                            <td>{{ record['class'] }}</td>
-                            <td>{{ record['capacity'] }}</td>
-                            <td>{{ record['occupied'] }}</td>
+                            <td>{{ chamber['num'] }}</td>
+                            <td>{{ chamber['class'] }}</td>
+                            <td>{{ chamber['capacity'] }}</td>
+                            <td>{{ chamber['occupied'] }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-striped">
+                    <thead>
+                        <tr style="font-weight: bold;">
+                            <td>&#8470;</td>
+                            <td>ФИО врача</td>
+                            <td>Прикреплено пациентов</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in report['doctors'] %}
+                        <tr>
+                            <td>{{ doctor['num']}}</td>
+                            <td>{{ doctor['name']}}</td>
+                            <td>{{ doctor['assigned']}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </teble>
             </div>
         </div>
     {% endif %}

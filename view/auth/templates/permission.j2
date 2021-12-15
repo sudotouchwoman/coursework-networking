@@ -11,10 +11,16 @@
 {% block content %}
 
 <div class="container">
-    <div class="alert alert-danger">
-        <p style="font-size: 100px;">⚠️</p>
-        <h1>У вас нет прав для просмотра данной страницы</h1>
-        <h2>Нажмите <a href="{{ url_for('auth_bp.login') }}">здесь</a>, чтобы перейти на страницу авторизации</a></h2>
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <div class="alert alert-danger">
+                <p style="font-size: 100px; text-align: center;">⚠️</p>
+                <h1>У вас нет прав для просмотра данной страницы</h1>
+                <h2>Нажмите <a href="{{ url_for('auth_bp.login') }}">здесь</a>, чтобы перейти на страницу авторизации</a></h2>
+            </div>
+        </div>
+        <div class="col-md-4"></div>
     </div>
 </div>
 

@@ -17,16 +17,19 @@
 {%block navbar %}
 {{ navlink('hospital_bp.list_appointments', 'Задачи') }}
 {{ navlink('hospital_bp.assignment_list', 'Пациенты') }}
-{{ navlink('hospital_bp.department_report', 'Отделения') }}
 {%endblock%}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="alert alert-info">
-            <h1>Меню врачебного раздела</h1>
-            <p>Выберите раздел для работы из меню выше</p>
+<div class="container">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <div class="alert alert-info" style="margin-top: 30%;">
+                <h1>Меню врачебного раздела</h1>
+                <p>Выберите раздел для работы из меню выше</p>
+            </div>
         </div>
+        <div class="col-md-2"></div>
     </div>
 </div>
 {%endblock%}

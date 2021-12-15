@@ -1,5 +1,5 @@
 INSERT INTO appointment (
-    asignee_id, patient_id,
+    assignee_id, patient_id,
     scheduled, about
 )
 VALUES(
