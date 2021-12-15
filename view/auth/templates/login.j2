@@ -11,24 +11,28 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        {% if login_error %}
-        <div class="alert alert-danger">
-            <p style="font-size: 100px;">⚠️</p>
-            <h2 style="text-align: center;">Некорректные данные, попробуйте снова!</h2>
-        {% else %}
-        <div class="alert alert-warning">
-            <p style="font-size: 100px;">🔑🔒</p>
-            <h2 style="text-align: center;">Введите данные учетной записи!</h2>
-        {% endif %}
-            <form class="form" action="{{ url_for('auth_bp.login') }}" method="post">
-                    <label for="login"></label>
-                    <input type="text" class="form-control  col-md-6" name="login" id="login" placeholder="Логин" aria-required="true">
-                    <label for="login"></label>
-                    <input type="password" class="form-control  col-md-6" name="password" id="password" placeholder="Пароль" aria-required="true">
-                    <label for="submit"></label>
-                    <input type="submit" class="form-control" id="submit" value="Войти" style="background-color: gainsboro;">
-            </form>
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            {% if login_error %}
+            <div class="alert alert-danger">
+                <p style="font-size: 100px; text-align: center;">⚠️</p>
+                <h2 style="text-align: center;">Некорректные данные, попробуйте снова!</h2>
+            {% else %}
+            <div class="alert alert-warning">
+                <p style="font-size: 100px; text-align: center;">🔑🔒</p>
+                <h2 style="text-align: center;">Введите данные учетной записи!</h2>
+            {% endif %}
+                <form class="form" action="{{ url_for('auth_bp.login') }}" method="post">
+                        <label for="login"></label>
+                        <input type="text" class="form-control  col-md-6" name="login" id="login" placeholder="Логин" aria-required="true">
+                        <label for="login"></label>
+                        <input type="password" class="form-control  col-md-6" name="password" id="password" placeholder="Пароль" aria-required="true">
+                        <label for="submit"></label>
+                        <input type="submit" class="form-control" id="submit" value="Войти" style="background-color: gainsboro;">
+                </form>
+            </div>
         </div>
+        <div class="col-md-4"></div>
     </div>
 </div>
 {% endblock content %}

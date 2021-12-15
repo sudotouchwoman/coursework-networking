@@ -17,7 +17,7 @@
                     <tr>
                         <td>
                             <div class="form-group">                                
-                                <select class="form-control" name="selected_department" style="text-align: center;">
+                                <select class="form-control form-select" name="selected_department" style="text-align: center;">
                                 {% for department in departments %}
                                 {% if report and department['title'] == report['title']%}
                                 <option value='{"title":"{{ department['title'] }}", "id":"{{ department['id'] }}"}' 

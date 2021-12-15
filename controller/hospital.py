@@ -253,7 +253,7 @@ class HospitalController:
             return
 
         if not schedule_to: schedule_to = \
-            datetime.datetime().today() + datetime.timedelta(days=7)
+            datetime.datetime.today() + datetime.timedelta(weeks=1)
         else:
             schedule_to = datetime.datetime.strptime(schedule_to, '%Y-%m-%dT%H:%M')
 
