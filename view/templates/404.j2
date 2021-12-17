@@ -4,14 +4,16 @@ Page not found
 {% endblock %}
 
 {% block body %}
-    <div class="row" style="text-align: center;">
-        <div class="col-md-12">
+    <div class="row" style="text-align: center; margin-top: 5%;">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
             <div class="alert alert-danger">
                 <p style="font-size: 100px;">⚠️</p>
                 <h1>Страница не найдена</h1>
                 <p>Страницы, которую вы ищете, больше не существует. <a href="{{ url_for('main_menu') }}">Перейти в главное меню</a>.</p>
             </div>
         </div>
+        <div class="col-md-4"></div>
     </div>
 
 {% endblock %}
