@@ -8,8 +8,8 @@ from flask import (
     url_for)
 
 def authenticated() -> bool:
-    group_name = session.get('group_name', '')
-    return True if group_name else False
+    group = session.get('group', '')
+    return True if group else False
 
 
 def requires_login(func):
@@ -23,11 +23,11 @@ def requires_login(func):
 
 def authorized() -> bool:
     policies = current_app.config['POLICIES']
-    group_name = session.get('group_name', 'unauthorized')
+    group = session.get('group', 'unauthorized')
 
     target_service = "" if len(request.endpoint.split('.')) == 1 else request.endpoint.split('.')[0]
 
-    return True if group_name in policies and target_service in policies[group_name] else False
+    return True if group in policies and target_service in policies[group] else False
 
 
 def requires_permission(func):

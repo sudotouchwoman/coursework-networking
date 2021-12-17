@@ -47,9 +47,10 @@ def login():
         auth_view.warning(msg=f'Encountered invalid credentials: {login}, {password}')
         return render_template('login.j2', login_error=True)
 
-    session['group_name'] = user_data['group']
+    session['group'] = user_data['group']
     session['id'] = user_data['id']
     session['name'] = user_data['name']
+    session['group_name'] = user_data['group_name']
     
     auth_view.info(msg=f'{user_data["name"]} logged in')
     return redirect(url_for('main_menu'))

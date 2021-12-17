@@ -194,7 +194,7 @@ class HospitalController:
             if s == 0: return u'Новый запрос'
             if s == 1: return u'Принят'
             if s == 2: return u'Отклонен'
-            if s == 3: return u'Выполнен'
+            if s == 3: return u'Завершен'
             return 'Неизвестный статус'
 
 

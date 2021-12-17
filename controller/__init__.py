@@ -48,7 +48,7 @@ class Validator(ABC):
         'assignee': And(str, lambda s: s.isdigit()),
         'patient': And(str, lambda s: s.isdigit()),
         Optional('about'): str,
-        Optional('scheduled'): And(datetime.datetime, lambda d: d >= datetime.date.today())
+        Optional('scheduled'): And(datetime.datetime, lambda d: d.date() >= datetime.date.today())
     }
 
     APPOINTMENT_UPDATE_TEMPLATE = {
