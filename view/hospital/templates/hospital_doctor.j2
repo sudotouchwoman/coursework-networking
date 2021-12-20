@@ -31,6 +31,16 @@
                     </thead>
                     <tbody>
                     {% for record in assigned %}
+                        {% if record['recovered'] %}
+                        <tr class="alert alert-success">
+                            <td>{{ record['num'] }}</td>
+                            <td>{{ record['name'] }}</td>
+                            <td>{{ record['diagnosis'] }}</td>
+                            <td>{{ record['date_birth'] }}</td>
+                            <td>{{ record['chamber'] }}</td>
+                            <td>Покинул госпиталь</td>
+                        </tr>
+                        {% else %}
                         <tr>
                             <td>{{ record['num'] }}</td>
                             <td>{{ record['name'] }}</td>
@@ -39,6 +49,7 @@
                             <td>{{ record['chamber'] }}</td>
                             <td>{{ record['duration'] }}</td>
                         </tr>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>

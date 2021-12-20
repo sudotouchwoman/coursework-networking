@@ -1,0 +1,10 @@
+version: '3'
+services:
+  hospital-app-dev:
+    container_name: "hospital-app"
+    env_file: .env/dev.env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5005:5000

@@ -6,7 +6,8 @@ def run_app():
     from view import create_app
     from . import config
 
-    settings = config.DevConfig
+    environment = getenv('ENV', 'Debug')
+    settings = config.Config if environment == 'Production' else config.DevConfig
     app = create_app(settings=settings)
 
     app.run(

@@ -132,7 +132,7 @@ class HospitalController:
             hospital_log.warning(msg=f'Failed to create report: looks like we encountered fantom doctor with credentials {doctor}')
             return
 
-        handle_null = lambda s: 'Not specified' if s is None or not s else s
+        handle_null = lambda s: 'Не указано' if s is None or not s else s
 
         def process_rows():
             for i, row in enumerate(selected, start=1):
@@ -143,6 +143,7 @@ class HospitalController:
                     'chamber': row[3],
                     'duration': f'{(datetime.date.today() - row[4]).days} days',
                     'date_birth': row[5],
+                    'recovered': row[6] is not None
                 }
 
         hospital_log.debug(msg=f'Successfully fetched report for given doctor')
