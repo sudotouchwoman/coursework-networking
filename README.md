@@ -30,3 +30,16 @@
 + Add `auth` blueprint, utilize Flask's `session`, create dummy policies
 + Play with templates, get used to `redirect` and `url_for`
 + Refactor project structure, move `json` configs to a single folder for `db` and `policies`
+
+## **Stage 5**
+
++ Make advanced use of `Jinja`: chain templates for menus and header
++ Implement new model interface for queries with parameters
++ Implement `Validator` class to check user input when modifying the tables
++ Use `Bootstrap` for neater styling
+
+## **Stage 6**
+
++ add `Dockerfile` and `.yml` for Docker-compose
++ add `.env/` dir with environmental variables for container
++ add `json` with config for dockerized application (change DB server hostname)
